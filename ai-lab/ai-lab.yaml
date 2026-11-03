@@ -1,0 +1,52 @@
+# ai-lab.yaml — a repeatable local Linux lab for LLMs + RAG
+#
+# Start it:        limactl start ./ai-lab.yaml
+# Get a shell:     limactl shell ai-lab
+# Throw it away:   limactl delete ai-lab   (this file rebuilds it identically)
+
+minimumLimaVersion: "1.0.0"
+
+# Pin the OS for repeatability. Everyone gets the same Ubuntu LTS,
+# on Intel or Apple Silicon, today or a year from now.
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+# Right-sized for a 3B model. Low on host RAM? Drop memory to "4GiB".
+cpus: 4
+memory: "8GiB"
+disk: "30GiB"
+
+# Share ONLY the workshop folder, and make it writable.
+# (Lima's default is your whole home directory, read-only.)
+mounts:
+  - location: "~/ai-lab"
+    writable: true
+
+# Make the Ollama API inside the VM reachable at localhost:11434 on the host.
+# Lima usually auto-forwards detected ports; declaring it makes intent explicit.
+portForwards:
+  - guestPort: 11434
+    hostPort: 11434
+
+# Everything the lab needs, installed automatically on first boot.
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y python3-pip python3-venv
+      curl -fsSL https://ollama.com/install.sh | sh
+
+# Don't report "ready" until Ollama is actually answering.
+probes:
+  - description: "ollama API to be ready"
+    script: |
+      #!/bin/bash
+      until curl -sf http://localhost:11434/api/version >/dev/null 2>&1; do
+        sleep 3
+      done

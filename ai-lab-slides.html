@@ -1,0 +1,846 @@
+<!doctype html>
+<!--
+  Your Own Private Stack — workshop slides (reveal.js 5)
+  ══════════════════════════════════════════════════════
+  PRESENTING
+    • Open this file in a browser. Press F for fullscreen.
+    • Press S for SPEAKER VIEW — your talking points, demo cues,
+      and timing anchors live in the notes there. Allow the popup.
+    • Arrow keys / space to advance. ESC for slide overview.
+
+  BEFORE THE TALK
+    • Search for [YOUR NAME], [CONFERENCE], and [REPO/BLOG URL]
+      and fill them in (slides 1 and 36–37).
+
+  OFFLINE USE (recommended for conference wifi)
+    This file loads reveal.js and fonts from CDNs. To vendor it:
+      npm i reveal.js@5   (or download the dist/ folder from GitHub)
+    then replace the four cdn.jsdelivr.net URLs below with local
+    paths (e.g. ./reveal.js/dist/…) and delete the Google Fonts
+    <link> tags — the font stack falls back to system fonts cleanly.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Own Private Stack — Local LLMs &amp; RAG with Lima + Ollama</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/solarized-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Solarized-terminal theme ─────────────────────────────── */
+    :root {
+      --sol-bg: #002b36;        /* base03 */
+      --sol-panel: #073642;     /* base02 */
+      --sol-line: #0e4250;
+      --sol-text: #eee8d5;      /* base2  */
+      --sol-bright: #fdf6e3;    /* base3  */
+      --sol-muted: #93a1a1;     /* base1  */
+      --sol-faint: #586e75;     /* base01 */
+      --sol-red: #dc322f;
+      --acc-lima: #268bd2;      /* blue   */
+      --acc-ollama: #cb4b16;    /* orange */
+      --acc-rag: #6c71c4;       /* violet */
+      --acc-assemble: #859900;  /* green  */
+      --acc-neutral: #b58900;   /* yellow */
+      --accent: var(--acc-neutral);
+
+      --r-background-color: var(--sol-bg);
+      --r-main-font: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+      --r-heading-font: 'IBM Plex Sans', system-ui, 'Segoe UI', sans-serif;
+      --r-code-font: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      --r-main-font-size: 34px;
+      --r-main-color: var(--sol-text);
+      --r-heading-color: var(--sol-bright);
+      --r-heading-text-transform: none;
+      --r-heading-font-weight: 600;
+      --r-heading1-size: 2.3em;
+      --r-heading2-size: 1.45em;
+      --r-link-color: #2aa198;
+      --r-link-color-hover: #3fd0c3;
+      --r-selection-background-color: #586e75;
+    }
+    body[data-phase="lima"]     { --accent: var(--acc-lima); }
+    body[data-phase="ollama"]   { --accent: var(--acc-ollama); }
+    body[data-phase="rag"]      { --accent: var(--acc-rag); }
+    body[data-phase="assemble"] { --accent: var(--acc-assemble); }
+
+    .reveal .slides section { text-align: left; }
+    .reveal h1 { letter-spacing: -0.02em; line-height: 1.08; }
+    .reveal h2 { letter-spacing: -0.01em; margin-bottom: 0.55em; }
+    .reveal .sub { color: var(--sol-muted); font-size: 0.8em; }
+    .reveal ul { display: block; margin-left: 0.9em; }
+    .reveal li { margin: 0.45em 0; }
+    .reveal li li { font-size: 0.85em; color: var(--sol-muted); }
+    .reveal strong { color: var(--sol-bright); font-weight: 600; }
+    .reveal .muted { color: var(--sol-muted); }
+    .reveal .faint { color: var(--sol-faint); }
+
+    /* eyebrow — the "// PART 1 · LIMA" line above each heading */
+    .eyebrow {
+      font-family: var(--r-code-font);
+      font-size: 0.5em; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin: 0 0 1.2em;
+    }
+    .eyebrow::before { content: "// "; color: var(--sol-faint); letter-spacing: 0; }
+
+    /* lab badge pill */
+    .lab-badge {
+      display: inline-block; font-family: var(--r-code-font);
+      font-size: 0.48em; font-weight: 600; letter-spacing: 0.18em;
+      background: var(--accent); color: var(--sol-bg);
+      padding: 0.4em 1em; border-radius: 2em; margin: 0 0 1.1em;
+    }
+    .timebox { font-family: var(--r-code-font); font-size: 0.45em;
+      color: var(--sol-faint); margin-left: 0.9em; letter-spacing: 0.08em; }
+
+    /* code */
+    .reveal pre {
+      width: 100%; margin: 0.5em 0; box-shadow: none;
+      background: var(--sol-panel);
+      border: 1px solid var(--sol-line); border-left: 3px solid var(--accent);
+      border-radius: 6px; font-size: 0.55em; line-height: 1.55;
+    }
+    .reveal pre code { padding: 0.9em 1.1em; background: transparent; max-height: 520px; }
+    .reveal code { font-family: var(--r-code-font); }
+    .reveal p code, .reveal li code {
+      background: var(--sol-panel); border-radius: 4px;
+      padding: 0.06em 0.35em; font-size: 0.88em; color: var(--sol-bright);
+    }
+    .reveal pre.diagram { border-left-color: var(--sol-faint); }
+    .reveal pre.diagram code { color: var(--sol-muted); }
+
+    /* tables */
+    .reveal table { font-size: 0.62em; border-collapse: collapse; margin: 0.4em 0; }
+    .reveal table th {
+      font-family: var(--r-code-font); font-weight: 500; text-transform: uppercase;
+      letter-spacing: 0.14em; font-size: 0.8em; color: var(--sol-muted);
+      border-bottom: 1px solid var(--sol-faint); padding: 0.45em 1.2em 0.45em 0;
+    }
+    .reveal table td { border-bottom: 1px solid var(--sol-line); padding: 0.5em 1.2em 0.5em 0; }
+
+    /* two-column layout + compare panels */
+    .cols { display: flex; gap: 1.6em; align-items: stretch; }
+    .cols > div { flex: 1; min-width: 0; }
+    .panel { background: var(--sol-panel); border: 1px solid var(--sol-line);
+      border-radius: 8px; padding: 0.7em 0.9em; font-size: 0.72em; }
+    .panel h3 { font-family: var(--r-code-font); font-size: 0.75em;
+      letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 0.6em; }
+    .panel.bad h3 { color: var(--sol-red); }
+    .panel.good h3 { color: var(--acc-assemble); }
+
+    /* the signature: persistent stack strip, bottom-left */
+    .stack-strip {
+      position: fixed; left: 30px; bottom: 20px; z-index: 30;
+      font-family: var(--r-code-font); font-size: 14.5px;
+      letter-spacing: 0.06em; color: var(--sol-faint);
+      user-select: none; pointer-events: none;
+    }
+    .stack-strip span { margin-right: 1.5em; transition: color 0.3s; }
+    .stack-strip span::before { content: "○ "; }
+    body[data-phase="lima"]     .stack-strip [data-p="lima"],
+    body[data-phase="ollama"]   .stack-strip [data-p="ollama"],
+    body[data-phase="rag"]      .stack-strip [data-p="rag"],
+    body[data-phase="assemble"] .stack-strip [data-p="assemble"] {
+      color: var(--accent); font-weight: 600;
+    }
+    body[data-phase="lima"]     .stack-strip [data-p="lima"]::before,
+    body[data-phase="ollama"]   .stack-strip [data-p="ollama"]::before,
+    body[data-phase="rag"]      .stack-strip [data-p="rag"]::before,
+    body[data-phase="assemble"] .stack-strip [data-p="assemble"]::before { content: "● "; }
+
+    .reveal .progress { color: var(--accent); height: 4px; }
+    .reveal .controls { color: var(--accent); }
+    .reveal .slide-number { background: transparent; color: var(--sol-faint);
+      font-family: var(--r-code-font); font-size: 15px; right: 26px; bottom: 16px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stack-strip span { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stack-strip" aria-hidden="true">
+  <span data-p="lima">lima</span><span data-p="ollama">ollama</span><span data-p="rag">rag</span><span data-p="assemble">assemble</span>
+</div>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ═══════════ INTRO ═══════════ -->
+
+    <section>
+      <p class="eyebrow">Hands-on tutorial · 2 hours</p>
+      <h1>Your Own<br>Private Stack</h1>
+      <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong> — no cloud, no API key, no GPU.</p>
+      <p class="faint" style="font-size:0.6em; margin-top:2.2em;">[YOUR NAME] · [CONFERENCE] · [DATE]</p>
+      <aside class="notes">
+        <p><strong>⏱ 0:00.</strong> Welcome. Quick intro: who you are, what you make, why local-first computing appeals to you.</p>
+        <p><strong>The promise:</strong> in two hours everyone leaves with a working local AI lab — a language model answering questions about their own documents — defined entirely by one folder and one YAML file. Delete it, rebuild it, take it home.</p>
+        <p><strong>Who it's for:</strong> beginners to local AI. If you've never touched an LLM outside a chat window, you're the target audience. If you have, the Lima packaging will still be new.</p>
+        <p><strong>Housekeeping:</strong> interrupt with questions during labs; deep rabbit holes go to the parking lot for the end.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">Before we start</p>
+      <h2>Pre-flight check</h2>
+      <pre><code class="language-bash" data-trim>
+limactl list
+# NAME     STATUS     ...
+# ai-lab   Running        ← you want to see this
+      </code></pre>
+      <ul>
+        <li>No <code>ai-lab</code>? Pair up with a neighbor who has one.</li>
+        <li>Downloads were ~3 GB — conference wifi can't save you now 🙂</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>DEMO:</strong> run <code>limactl list</code> on screen. Ask for a show of hands: who sees ai-lab Running?</p>
+        <p><strong>Triage rule (say it once, kindly):</strong> we will not debug individual laptops live — that's how workshops die. Anyone without the pre-work pairs up now; the labs are fully doable as a pair, and everything works identically at home tonight using the README.</p>
+        <p>If a VM exists but is Stopped: <code>limactl start ai-lab</code> — takes ~30s, fine to do now.</p>
+        <p>Budget 3 minutes here, no more.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">Motivation</p>
+      <h2>Why run this stuff locally?</h2>
+      <ul>
+        <li><strong>Privacy</strong> — your documents never leave your laptop</li>
+        <li><strong>Cost</strong> — no meter running while you learn</li>
+        <li><strong>Offline</strong> — works on a plane, works in a demo</li>
+        <li><strong>Understanding</strong> — every moving part is visible &amp; yours</li>
+      </ul>
+      <aside class="notes">
+        <p>Expand each briefly. The fourth one is the real thesis of the day: cloud APIs are great, but they hide the machinery. Today <em>nothing</em> is hidden — we'll see the model file, the vectors, the prompt, all of it.</p>
+        <p>Not anti-cloud: it's "know what the abstraction is abstracting." After today, hosted AI services will make <em>more</em> sense, not less.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">The destination</p>
+      <h2>What we're building</h2>
+      <pre class="diagram"><code data-trim data-noescape>
+your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
+   │  limactl shell · curl :11434        ▲
+   ▼                                     │
+ ┌─ Lima VM — Ubuntu 24.04 LTS ──────────┼─────────────────┐
+ │  Ollama (port 11434)                  │                 │
+ │    ├─ llama3.2:3b       → generates answers             │
+ │    └─ nomic-embed-text  → turns text into vectors       │
+ │  Chroma (./chroma_db)   → stores document vectors       │
+ │  ask.py: question → embed → retrieve → prompt → answer  │
+ └─────────────────────────────────────────────────────────┘
+      </code></pre>
+      <aside class="notes">
+        <p>Walk it top to bottom. Four parts: <strong>Lima</strong> is the room, <strong>Ollama</strong> is the brain, <strong>Chroma</strong> is the filing cabinet, and ~150 lines of <strong>plain Python</strong> is the glue. No frameworks — deliberately.</p>
+        <p>Point at the shared folder arrow: one folder visible on both sides of the wall. Point at the port: one door through the wall. Everything else is sealed.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">The route</p>
+      <h2>The next two hours</h2>
+      <table>
+        <tr><th>When</th><th>What</th><th>Lab</th></tr>
+        <tr><td>0:00</td><td>Why local, the four parts</td><td class="faint">—</td></tr>
+        <tr><td>0:10</td><td><strong>Lima</strong> — disposable Linux, as a file</td><td>Lab 1 · kick the tires</td></tr>
+        <tr><td>0:35</td><td><strong>Ollama</strong> — models as a service (yours)</td><td>Lab 2 · talk to a model</td></tr>
+        <tr><td>0:55</td><td><strong>RAG</strong> — give the model an open book</td><td>Labs 3a–3c · embed, ingest, search</td></tr>
+        <tr><td>1:15</td><td><strong>Assemble</strong> — ask your documents</td><td>Lab 4 · the payoff</td></tr>
+        <tr><td>1:50</td><td>Where it breaks · take it home · Q&amp;A</td><td class="faint">—</td></tr>
+      </table>
+      <aside class="notes">
+        <p>Set expectations: primers are short on purpose — the labs are the point. Roughly half the room's hands should be on keyboards half the time.</p>
+        <p>Note the shape: each tool gets (1) what it is, (2) a 90-second history so you know <em>why</em> it exists, (3) a lab. Then everything snaps together in part four.</p>
+      </aside>
+    </section>
+
+    <!-- ═══════════ PART 1 · LIMA ═══════════ -->
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>Lima — <span class="muted">Li</span>nux <span class="muted">Ma</span>chines</h2>
+      <ul>
+        <li>CLI tool that launches Linux VMs…</li>
+        <li>…with <strong>automatic file sharing</strong> and <strong>automatic port forwarding</strong></li>
+        <li>WSL2 energy — but for macOS <em>and</em> Linux</li>
+        <li>The whole machine is <strong>one YAML file</strong> you can put in git</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ 0:10.</strong> Definition first: Lima launches Linux virtual machines and handles the two things that are normally fiddly — sharing files in, forwarding ports out.</p>
+        <p>The last bullet is why we chose it: a README saying "install python, then ollama, then…" rots. A Lima template <em>is</em> the environment. Same file → same machine, on every laptop in this room.</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>A short history</h2>
+      <ul>
+        <li><strong>2021</strong> — Akihiro Suda: run containerd/nerdctl on Macs</li>
+        <li><strong>2022</strong> — joins CNCF (sandbox)</li>
+        <li>You may already run it: <strong>Colima · Rancher Desktop · Finch</strong></li>
+        <li><strong>Nov 2024</strong> — v1.0</li>
+        <li><strong>Oct/Nov 2025</strong> — CNCF <em>incubating</em>; <strong>v2.0 targets AI workflows</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>Started May 2021 by Akihiro Suda, a containerd maintainer. Original itch: containers are a Linux kernel feature, Macs don't have one — give Mac users containerd + nerdctl. Turned out to be generally useful.</p>
+        <p>Lots of tools quietly build on it — if you've used Colima, Rancher Desktop, or AWS Finch, you've run Lima without knowing.</p>
+        <p><strong>The punchline for us:</strong> Lima v2.0 (Nov 2025) made AI workflows a headline use case — running models and AI agents inside a VM so they can't touch your host. There's even a krunkit driver for GPU-accelerated local LLMs on Apple Silicon. We're not misusing a container tool today; we're using Lima exactly as its maintainers now intend.</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>Why a VM for AI work?</h2>
+      <ul>
+        <li><strong>Isolation</strong> — the AI ecosystem loves <code>curl | sh</code>. Fine… in here.</li>
+        <li><strong>Repeatability</strong> — fast-moving deps, pinned OS, zero "works on my machine"</li>
+        <li><strong>Disposability</strong> — rebuild costs one command, so break things freely</li>
+      </ul>
+      <aside class="notes">
+        <p>Isolation: half the install instructions in this space pipe a shell script from the internet into root. Inside a VM that's a shrug, not a risk assessment.</p>
+        <p>Repeatability: model runtimes, Python packages, and system libs move fast and break each other. Pin the whole OS.</p>
+        <p>Disposability is the underrated one — when the environment is cheap to rebuild, you experiment more bravely. We will literally practice deleting a VM in about four minutes.</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2><code>limactl</code> in five commands</h2>
+      <pre><code class="language-bash" data-trim>
+limactl start &lt;template&gt;    # create + boot (name, file, or URL)
+limactl list                # what exists, what's running
+limactl shell &lt;name&gt;        # a shell inside the VM
+limactl stop  &lt;name&gt;        # shut down, state kept
+limactl delete &lt;name&gt;       # gone. completely.
+      </code></pre>
+      <p class="sub">Bonus: <code>shell</code> drops you into your <em>current host directory</em> — if it's mounted.</p>
+      <aside class="notes">
+        <p>That's genuinely the whole daily-driver surface. Templates can be built-in names (<code>template://default</code>), local YAML files (ours), or URLs.</p>
+        <p>The bonus behavior is why every lab starts with <code>cd ~/ai-lab</code> first — the host/guest boundary nearly disappears.</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <span class="lab-badge">Lab 1</span><span class="timebox">~10 min</span>
+      <h2>Kick the tires</h2>
+      <pre><code class="language-bash" data-trim>
+limactl start --name=scratch template://default   # "Proceed…"
+limactl shell scratch
+  uname -a && whoami && ls ~
+  touch ~/some-host-file.txt      # ← watch what happens
+  exit
+limactl stop scratch && limactl delete scratch
+limactl list                      # scratch gone, ai-lab untouched
+      </code></pre>
+      <aside class="notes">
+        <p><strong>⏱ 0:18. DEMO first (2 min), then the room follows.</strong></p>
+        <p>Beats to hit while they work:</p>
+        <p>1. <code>uname -a</code>: a real Linux kernel. <code>whoami</code>: your host username mirrored in.</p>
+        <p>2. <code>ls ~</code>: wait — those are your host files. Then <code>touch</code> fails: <strong>read-only file system.</strong> PAUSE HERE. This is Lima's most important default: your home is shared read-only. Writable access is opt-in, per-directory, in the template. Sandbox posture out of the box.</p>
+        <p>3. Delete without ceremony — this is the disposability muscle. Note the second VM boots fast: the Ubuntu image is cached.</p>
+        <p><strong>If someone's start hangs:</strong> pair them, keep moving; troubleshooting section in the blog covers it.</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>What just happened</h2>
+      <ul>
+        <li>Host home mounted <strong>read-only by default</strong> — safety is the default</li>
+        <li>Image was <strong>cached</strong> — next VM costs seconds, not 600 MB</li>
+        <li>Plain <strong>SSH</strong> under the hood — no daemon mystery</li>
+        <li><code>scratch</code> is gone; <code>ai-lab</code> never noticed</li>
+      </ul>
+      <aside class="notes">
+        <p>Recap fast — the room just experienced all of this, you're naming it.</p>
+        <p>Transition: "So how did our ai-lab VM get a <em>writable</em> folder, Ollama preinstalled, and a port opened? Somebody asked for those — in a file. Let's read it."</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>Templates: the environment as a file</h2>
+      <pre><code class="language-yaml" data-trim>
+images:        # which OS, per CPU architecture
+mounts:        # which host folders, read-only or writable
+portForwards:  # which guest ports appear on the host
+provision:     # scripts that run on first boot
+probes:        # what "ready" actually means
+      </code></pre>
+      <p class="sub">A Dockerfile, but for a whole machine — and just as shareable.</p>
+      <aside class="notes">
+        <p>Five verbs, that's the vocabulary. Everything else in a Lima template is refinement of these.</p>
+        <p>Analogy that lands: Dockerfile for a whole machine. Check it into git, send it to a colleague, "limactl start" is the new "works on my machine — here, have my machine."</p>
+      </aside>
+    </section>
+
+    <section data-phase="lima">
+      <p class="eyebrow">Part 1 · Lima</p>
+      <h2>Our lab, unabridged: <code>ai-lab.yaml</code></h2>
+      <pre><code class="language-yaml" data-trim>
+images:                      # pinned Ubuntu 24.04 LTS (x86_64 + arm64)
+cpus: 4
+memory: "8GiB"               # 3B-model sized; 4GiB works too
+mounts:
+  - location: "~/ai-lab"     # ONLY this folder…
+    writable: true           # …and writable, on purpose
+portForwards:
+  - guestPort: 11434         # Ollama API → host localhost:11434
+    hostPort: 11434
+provision:
+  - mode: system             # first boot: python + ollama.com/install.sh
+probes:
+  - description: "ollama API to be ready"   # start ≠ done until it answers
+      </code></pre>
+      <aside class="notes">
+        <p><strong>⏱ ~0:31. DEMO:</strong> open the real file in your editor — this slide is the annotated skeleton.</p>
+        <p>What each block buys us: <strong>pinned image</strong> = repeatable in a year (the built-in default template tracks the newest Ubuntu — great daily, wrong for a lab). <strong>One writable mount</strong> = deliberate hole in the wall, not an open door. <strong>portForward</strong> = the model becomes a service your host can use. <strong>provision</strong> = the scary curl|sh lives in the sandbox. <strong>probe</strong> = "started" means "actually answering".</p>
+        <p>Land this line: <em>this file is a deliverable of the workshop — everything we build travels with it.</em></p>
+      </aside>
+    </section>
+
+    <!-- ═══════════ PART 2 · OLLAMA ═══════════ -->
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Ollama = runtime + registry + API</h2>
+      <ul>
+        <li><strong>Runtime</strong> — executes models efficiently on ordinary CPUs/GPUs</li>
+        <li><strong>Registry</strong> — <code>ollama pull</code> from a curated model library</li>
+        <li><strong>API</strong> — an HTTP server on port <code>11434</code>, always on</li>
+      </ul>
+      <p class="sub">On Linux (our VM): one install script, one systemd service.</p>
+      <aside class="notes">
+        <p><strong>⏱ 0:35.</strong> Three things in one small binary. In our VM it's already installed (the provision script did it) and already running as a service.</p>
+        <p>Foreshadow: the API is the part that matters for the rest of the day — the CLI we're about to use is just one client of it.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>A short history</h2>
+      <ul>
+        <li><strong>Early 2023</strong> — Georgi Gerganov's <strong>llama.cpp</strong>: quantized LLMs on ordinary CPUs</li>
+        <li>Powerful, but a hacker's tool — compile flags, conversion scripts</li>
+        <li><strong>Mid-2023</strong> — Jeffrey Morgan &amp; Michael Chiang launch <strong>Ollama</strong></li>
+        <li>Their pedigree: built <strong>Kitematic</strong> → acquired by Docker</li>
+        <li>Result: <em>"docker pull, for models"</em> — library, Modelfile, standard API</li>
+      </ul>
+      <aside class="notes">
+        <p>Two projects made today possible. llama.cpp proved the industry assumption wrong: with 4-bit quantization, capable models run on laptops. Huge tinkerer ecosystem, GGUF file format.</p>
+        <p>But it was gloriously hostile to beginners. Ollama's founders had already built the friendly face of Docker once (Kitematic) — they did the same for local models: pull, run, a curated library, a Modelfile that works like a Dockerfile.</p>
+        <p>It became the default on-ramp, and its API — including an OpenAI-compatible endpoint — became the thing dozens of other tools integrate with. Started as a llama.cpp wrapper; has grown its own engine work since. Promise unchanged: one command between you and a running model.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Quantization, one slide</h2>
+      <table>
+        <tr><th>llama3.2 — 3 billion parameters</th><th>Size</th></tr>
+        <tr><td>Full precision (16-bit)</td><td>≈ 6 GB</td></tr>
+        <tr><td><strong>4-bit quantized (what you pulled)</strong></td><td><strong>≈ 2 GB</strong></td></tr>
+      </table>
+      <p class="sub">Fewer bits per parameter · modest quality tax · <strong>this</strong> is why "LLM on a laptop" is a sentence.</p>
+      <aside class="notes">
+        <p>"3B" = three billion learned numbers. Store each in 4 bits instead of 16 and the model fits in laptop RAM with room to spare. Quality cost is real but modest at this size.</p>
+        <p>Fun reveal: everyone in this room already pulled a 4-bit GGUF in Lab 0 without knowing — that's good defaults doing their job.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>The CLI you'll actually use</h2>
+      <pre><code class="language-bash" data-trim>
+ollama pull llama3.2:3b     # fetch from the library
+ollama run  llama3.2:3b     # interactive chat (/bye to exit)
+ollama list                 # what's downloaded
+ollama ps                   # what's loaded in memory right now
+ollama rm   &lt;model&gt;         # free the disk
+      </code></pre>
+      <aside class="notes">
+        <p>Docker users: yes, it feels exactly like you think. Models unload from memory automatically after a few idle minutes — <code>ps</code> shows the live state.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>It's a server too</h2>
+      <table>
+        <tr><th>Endpoint</th><th>Job</th></tr>
+        <tr><td><code>/api/generate</code></td><td>one-shot completion</td></tr>
+        <tr><td><code>/api/chat</code></td><td>messages + roles (system, user…)</td></tr>
+        <tr><td><code>/api/embed</code></td><td>text → vectors <span class="faint">(star of Part 3)</span></td></tr>
+        <tr><td><code>/api/tags</code></td><td>list local models</td></tr>
+        <tr><td><code>/v1/…</code></td><td>OpenAI-compatible surface</td></tr>
+      </table>
+      <aside class="notes">
+        <p>The CLI is a client of this same server. So is our Python. So is half the AI tooling ecosystem — that OpenAI-compatible surface means many existing apps can point at your laptop instead of a cloud, by changing one URL.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <span class="lab-badge">Lab 2</span><span class="timebox">~12 min</span>
+      <h2>Talk to the model</h2>
+      <pre><code class="language-bash" data-trim>
+cd ~/ai-lab && limactl shell ai-lab      # into the VM
+ollama list
+ollama run llama3.2:3b                   # chat! then /bye
+
+curl http://localhost:11434/api/generate -d '{
+  "model": "llama3.2:3b",
+  "prompt": "Reply with exactly five words about Linux.",
+  "stream": false }'
+
+exit                                     # back on the HOST:
+curl http://localhost:11434/api/version  # …wait, it answers?!
+      </code></pre>
+      <aside class="notes">
+        <p><strong>⏱ 0:43. DEMO the chat briefly, then set the room loose.</strong></p>
+        <p>Beat 1 — speed: this is CPU inference in a VM, and it's <em>fine</em>. Have them ask it something fun.</p>
+        <p>Beat 2 — same thing via HTTP: the CLI was never special.</p>
+        <p>Beat 3 — <strong>THE MAGIC MOMENT.</strong> Exit to the host, run the curl again. It answers. Ask the room: why? → the portForwards block from the template. The model is sealed in the VM, but its API is a first-class citizen of the laptop. Isolation and usefulness at the same time.</p>
+        <p><strong>Running behind?</strong> Skip the interactive chat, go straight to the two curls — the magic moment is the part that can't be cut.</p>
+        <p><strong>Gotcha to expect:</strong> if someone's host curl fails, they likely have a native Ollama already using 11434 on the host — stop it or note it and move on (blog troubleshooting covers it).</p>
+      </aside>
+    </section>
+
+    <!-- ═══════════ PART 3 · RAG ═══════════ -->
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>First, the problem</h2>
+      <pre><code class="language-bash" data-trim>
+ollama run llama3.2:3b \
+  "What is Kiln &amp; Wick Candle Co.'s return policy
+   for a candle that has been lit?"
+      </code></pre>
+      <ul>
+        <li>It read the internet. It never read <strong>your</strong> documents.</li>
+        <li>Knowledge is frozen at training time — and it <em>will</em> improvise</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ 0:55. DEMO — do this live, savor it.</strong> Two possible outcomes: an honest "I don't know that company," or a confident, plausible, completely invented returns policy. The hallucination is the better teaching outcome — let the room laugh, then diagnose.</p>
+        <p>Why it happens: a model's knowledge is baked into its parameters at training time. Snapshot of the public internet, nothing after the cutoff, nothing private. Kiln &amp; Wick is our fictional candle company — four markdown files in <code>docs/</code>: handbook, catalog, fragrance formulas, ops runbook. (Yes, I picked a corpus close to home. Swap in your own later — the pipeline doesn't care.)</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>Three fixes, one winner</h2>
+      <ul>
+        <li>Retrain / fine-tune on your docs — <span class="muted">slow, costly, redo on every edit</span></li>
+        <li>Paste <em>everything</em> into the prompt — <span class="muted">context limits, diluted attention</span></li>
+        <li><strong>Retrieve just the relevant passages, put them in the prompt</strong> ✓</li>
+      </ul>
+      <aside class="notes">
+        <p>Walk the two losers quickly. Fine-tuning: expensive and stale the moment a doc changes. Paste-everything: works until the corpus outgrows the context window — and you pay in speed and attention long before that.</p>
+        <p>The third one is Retrieval-Augmented Generation. Frame it now with the analogy on the next slide.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>RAG = an open-book exam</h2>
+      <p style="font-size:1.05em; line-height:1.5;">At question time, <strong>find the right pages</strong> and hand them to the model <strong>inside the prompt</strong>.</p>
+      <ul class="sub" style="margin-top:0.9em;">
+        <li>Named by <strong>Lewis et al., 2020</strong> (Facebook AI Research)</li>
+        <li>Roots: open-domain QA — DrQA, DPR, REALM</li>
+        <li><strong>2023</strong>: ChatGPT makes the limits everyone's problem → RAG everywhere</li>
+        <li>Refinements ever since — <em>same core loop</em>, and it's the one you'll build</li>
+      </ul>
+      <aside class="notes">
+        <p>The name comes from a specific 2020 paper out of FAIR. The idea is older — QA systems paired search with reading comprehension for years — but 2020's dense (neural) retrieval beat keyword search, and 2023's chatbot boom made grounding-in-your-own-data the industry's hello-world.</p>
+        <p>Everything since — hybrid search, rerankers, agentic retrieval — refines the loop we build in the next 40 minutes. Learn the loop, and the refinements are just knobs.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>Embeddings: meaning as coordinates</h2>
+      <ul>
+        <li>A model that turns text into a <strong>vector</strong> (a long list of numbers)</li>
+        <li>Similar <em>meaning</em> → vectors point the same way <span class="faint">(not similar spelling!)</span></li>
+        <li>Closeness = <strong>cosine similarity</strong>: 1.0 same direction, ~0 unrelated</li>
+        <li>Ours: <code>nomic-embed-text</code> — 274 MB, 768 dimensions</li>
+      </ul>
+      <aside class="notes">
+        <p>The load-bearing concept of the whole afternoon. "The candle smells like lavender and cedar" and "this wax melt has notes of lavender and wood" share almost no words — but their vectors sit close, and both sit far from "restart the server after updating the config."</p>
+        <p>That's the difference from grep: meaning, not spelling. Let's go see it as numbers.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <span class="lab-badge">Lab 3a</span><span class="timebox">~4 min</span>
+      <h2>See an embedding</h2>
+      <pre><code class="language-bash" data-trim>
+# inside the VM, venv active:
+source ~/venv/bin/activate
+python3 embed_demo.py
+      </code></pre>
+      <ul>
+        <li>Candle ↔ candle: <strong>high</strong> · candle ↔ sysadmin: <strong>low</strong></li>
+        <li>…and <code>cosine()</code> is eight lines of arithmetic. No magic.</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ 1:01.</strong> Three sentences → three vectors of 768 numbers → pairwise similarities. Have them notice the <em>gap</em> between the similar pair and the odd one out — meaning made measurable.</p>
+        <p>Open the script if time allows: the embed() call is one POST to <code>/api/embed</code>; cosine is dot-product-over-magnitudes. Deliberately no numpy — you can read every line.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>Chunking</h2>
+      <ul>
+        <li>Whole files are bad retrieval units — <em>one chunk ≈ one topic</em></li>
+        <li>Ours: split on blank lines, merge paragraphs up to <strong>400 chars</strong></li>
+        <li>Naive <strong>on purpose</strong> — readable beats clever, today</li>
+        <li>Chunk boundaries are where RAG bugs live <span class="faint">(more later)</span></li>
+      </ul>
+      <aside class="notes">
+        <p>What do we embed? Not whole files — a file "about operations" matches everything vaguely operational. Few-hundred-character chunks make each vector about one thing, so retrieval can be precise.</p>
+        <p>Be honest: real systems fight hard here — structure-aware splitting, overlap, etc. Ours is 15 lines and works for tidy markdown. When their future RAG system misbehaves, chunking is suspect #2 (retrieval itself is #1 — coming up).</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <p class="eyebrow">Part 3 · RAG</p>
+      <h2>Vector databases</h2>
+      <ul>
+        <li>Persistence + <strong>fast nearest-neighbor search</strong> + metadata filters</li>
+        <li>Today: <strong>Chroma</strong>, embedded mode — a pip install, persists to a folder, SQLite inside</li>
+        <li>Outgrow it later → Qdrant, pgvector, … <em>concepts transfer exactly</em></li>
+      </ul>
+      <aside class="notes">
+        <p>For 17 chunks you could brute-force compare in a loop. For a million you want a real index. Chroma (open source, early 2023) in embedded mode is perfect lab equipment: no server, no config, your knowledge base is a folder in the project.</p>
+        <p>Deliberate choice for a beginner workshop — and when they graduate to a served DB, every concept (collections, upsert, query by vector, metadata) maps one-to-one.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <span class="lab-badge">Lab 3b</span><span class="timebox">~4 min</span>
+      <h2>Ingest the documents</h2>
+      <pre><code class="language-bash" data-trim>
+python3 ingest.py
+# Embedding 17 chunks from 4 files...
+# Done. Collection 'docs' in ./chroma_db now holds 17 chunks.
+
+ls chroma_db/        # your knowledge base is… a folder
+      </code></pre>
+      <p class="sub">Each chunk stored three ways: <strong>text</strong> (for prompts) · <strong>vector</strong> (for search) · <strong>metadata</strong> (for citations)</p>
+      <aside class="notes">
+        <p><strong>⏱ 1:06.</strong> Read the flow aloud from the script: glob the docs → chunk → one batched embed call → <code>upsert</code> into Chroma. Upsert = re-run after editing docs and it just works.</p>
+        <p>Nice beat: because <code>~/ai-lab</code> is our writable Lima mount, that chroma_db folder is visible from the host too. The whole knowledge base travels with the project folder.</p>
+      </aside>
+    </section>
+
+    <section data-phase="rag">
+      <span class="lab-badge">Lab 3c</span><span class="timebox">~5 min</span>
+      <h2>Search — no LLM involved</h2>
+      <pre><code class="language-bash" data-trim>
+python3 search.py "what do we do when the wick supplier is out of stock?"
+# --- ops-runbook.md  (distance 0.334)   ← right answer, first
+# --- handbook.md     (distance 0.512)
+      </code></pre>
+      <ul>
+        <li>Try phrasings that share <em>no words</em> with the docs</li>
+        <li>Try an unanswerable question — <strong>something still comes back</strong> ⚠️</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ 1:10. The step people skip — and why they can't debug RAG.</strong> Retrieval works without a language model, so test it without one.</p>
+        <p>Have them try "my candle showed up as a puddle, what now?" — no keyword overlap, semantic search still finds the summer shipping protocol. That's the payoff over grep.</p>
+        <p><strong>Foreshadowing (say it explicitly):</strong> ask something the docs can't answer. Distances get worse, but the top-3 still come back — retrieval always returns its <em>best guess</em>. Remember that for Lab 4.</p>
+      </aside>
+    </section>
+
+    <!-- ═══════════ PART 4 · ASSEMBLE ═══════════ -->
+
+    <section data-phase="assemble">
+      <p class="eyebrow">Part 4 · Assemble</p>
+      <h2>The whole loop</h2>
+      <pre class="diagram"><code data-trim data-noescape>
+question ──→ embed it ──→ nearest chunks ──→ build prompt ──→ generate
+           nomic-embed       Chroma          an f-string!    llama3.2
+                                                                 │
+                                            answer + sources ◄───┘
+      </code></pre>
+      <aside class="notes">
+        <p><strong>⏱ 1:15.</strong> Everything from the last hour, in one line. Each arrow is something they've already run by hand — the only new part is gluing them together.</p>
+        <p>Point at "an f-string!" — that's the next slide's whole job.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
+      <p class="eyebrow">Part 4 · Assemble</p>
+      <h2>The "framework" is an f-string</h2>
+      <pre><code class="language-python" data-trim>
+context = "\n\n---\n\n".join(chunks)          # the retrieved evidence
+
+messages = [
+  {"role": "system", "content":
+      "Answer the question using ONLY the provided context. "
+      "If the context does not contain the answer, say you don't know."},
+  {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"},
+]
+      </code></pre>
+      <p class="sub">Every RAG framework you'll ever meet is a fancier version of this string.</p>
+      <aside class="notes">
+        <p>Read the system prompt out loud, slowly. Two instructions: use only this evidence; admit ignorance otherwise.</p>
+        <p>The "augmentation" in Retrieval-Augmented Generation is string formatting. Learning it this way first means LangChain and friends will never be magic — they'll be conveniences you can evaluate.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
+      <span class="lab-badge">Lab 4</span><span class="timebox">~15 min</span>
+      <h2>Ask your documents</h2>
+      <pre><code class="language-bash" data-trim>
+python3 ask.py "what is the return policy on a candle that has been lit?"
+python3 ask.py "which scent has cedarwood in its base notes?"
+python3 ask.py "what temperature do we pour wax at?"
+python3 ask.py "what is our policy on remote work?"    # ← the trap
+      </code></pre>
+      <p class="sub">Then: ask it anything. Read the sources line. Break it if you can.</p>
+      <aside class="notes">
+        <p><strong>⏱ 1:20. The long lab — circulate.</strong> First question mirrors the Part-3 failure demo on purpose; the payoff comparison is next slide.</p>
+        <p>Expected: grounded answers with a Sources line (handbook.md, fragrance-notes.md, ops-runbook.md respectively).</p>
+        <p><strong>The trap question:</strong> nothing about remote work exists in the docs. Usually the model says it doesn't know — <em>because our system prompt demanded it and retrieval gave it nothing to bluff with.</em> But recall Lab 3c: retrieval always returns its best guess, and small models sometimes improvise anyway. If someone gets a creative answer, celebrate it — that's the honest lesson, and the segue to the next-next slide.</p>
+        <p>Encourage: open ask.py, change TOP_K, change the system prompt, re-ask. It's 60 lines; own it.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
+      <p class="eyebrow">Part 4 · Assemble</p>
+      <h2>Before / after</h2>
+      <div class="cols">
+        <div class="panel bad">
+          <h3>✗ raw model</h3>
+          <p>Confident, plausible, <em>invented</em> returns policy — or a shrug.</p>
+        </div>
+        <div class="panel good">
+          <h3>✓ same model + RAG</h3>
+          <p>"Once lit, no returns — but manufacturing defects are replaced within 90 days…" <strong>Sources: handbook.md</strong></p>
+        </div>
+      </div>
+      <p style="margin-top:0.8em;"><strong>The parameters didn't change. The prompt did.</strong></p>
+      <aside class="notes">
+        <p>Let this one breathe — it's the thesis slide of Part 4. Same 2 GB model, same question, night and day.</p>
+        <p><strong>DEMO if time:</strong> re-run the raw <code>ollama run</code> question from Part 3 live, side by side with ask.py.</p>
+        <p>Retrieval put the truth in front of the model; the instructions told it to stay inside the evidence; the metadata let us cite where the answer came from.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
+      <p class="eyebrow">Part 4 · Assemble</p>
+      <h2>Where it breaks <span class="muted">(an honest list)</span></h2>
+      <ul>
+        <li><strong>Retrieval misses</strong> — right chunk exists, doesn't come back → debug with <code>search.py</code></li>
+        <li><strong>Chunk boundaries split facts</strong> — neither half answers alone → smarter splitting</li>
+        <li><strong>Small model fumbles</strong> — evidence is right there, synthesis wobbles → bigger model</li>
+      </ul>
+      <p class="sub">Three failure sites, each testable <em>in isolation</em> — that's why we built it in layers. Search term for later: <em>“RAG evaluation.”</em></p>
+      <aside class="notes">
+        <p><strong>⏱ ~1:42.</strong> Ending on honesty builds trust. The gift of the layered build: when their future system misbehaves, they know exactly which of three doors to check, and search.py checks door #1 with no LLM in the loop.</p>
+        <p>Evaluation of all this is a genuine engineering field now — plant the search term and move on.</p>
+      </aside>
+    </section>
+
+    <!-- ═══════════ CLOSE ═══════════ -->
+
+    <section>
+      <p class="eyebrow">Take it home</p>
+      <h2>This lab is a starting point</h2>
+      <ul>
+        <li><strong>Your own docs</strong> → drop into <code>docs/</code>, re-run <code>ingest.py</code>. Done.</li>
+        <li><strong>Bigger brain</strong> → <code>ollama pull qwen3:4b</code> / <code>gemma3:4b</code> / <code>phi4-mini</code>, change one constant</li>
+        <li><strong>Feels faster</strong> → <code>"stream": true</code>, print as it generates</li>
+        <li><strong>A face</strong> → point Open WebUI at your forwarded port</li>
+        <li><strong>Apple Silicon speed</strong> → Lima v2's <code>krunkit</code> GPU driver</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ ~1:45.</strong> Each of these is a one-line-ish change — say that explicitly, it keeps momentum alive after the workshop.</p>
+        <p>The first bullet is the one that matters: meeting notes, wiki exports, homelab docs — this afternoon's pipeline handles them unchanged, and they never leave the VM.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">The thesis, one last time</p>
+      <h2>Cattle, not pets</h2>
+      <pre><code class="language-bash" data-trim>
+limactl delete ai-lab            # no ceremony
+limactl start ./ai-lab.yaml      # good as new in minutes
+      </code></pre>
+      <p style="margin-top:0.6em;">The environment <strong>is the file</strong>. Version it. Share it. Break it on purpose.</p>
+      <aside class="notes">
+        <p>Closing thesis. Everything built today lives in one folder plus one YAML file — which means everyone already has everything.</p>
+        <p>Homework framing: go home, delete the VM, rebuild it. Once rebuilding feels boring, you've internalized the whole workshop.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">Resources</p>
+      <h2>Keep going</h2>
+      <ul style="font-size:0.85em;">
+        <li>Slides, template, docs &amp; scripts → <strong>[REPO/BLOG URL]</strong></li>
+        <li>Lima (CNCF incubating) → <code>lima-vm.io</code></li>
+        <li>Ollama + model library → <code>ollama.com</code></li>
+        <li>Chroma → <code>trychroma.com</code></li>
+        <li>The paper that named it → Lewis et al., 2020 · <code>arxiv.org/abs/2005.11401</code></li>
+      </ul>
+      <aside class="notes">
+        <p>The blog post version of this workshop contains every command, every script in full, and a troubleshooting section for everything that went wrong today.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">fin</p>
+      <h2>Thanks — questions?</h2>
+      <p class="sub">[YOUR NAME] · [CONTACT / MASTODON / SITE]<br>[REPO/BLOG URL]</p>
+      <aside class="notes">
+        <p><strong>⏱ 1:50 — Q&amp;A.</strong> Questions to expect, with short answers:</p>
+        <p><em>"GPU?"</em> — everything today was CPU on purpose; Ollama uses a GPU automatically when present, and krunkit brings GPU into Lima VMs on Apple Silicon.</p>
+        <p><em>"Windows?"</em> — Lima targets macOS/Linux; on Windows, WSL2 plays the Lima role and Ollama runs natively — the Python is identical.</p>
+        <p><em>"How big can the corpus get?"</em> — Chroma embedded handles far more than you'd guess; when ingest or query time annoys you, that's the signal to graduate to a served vector DB.</p>
+        <p><em>"Is local actually private?"</em> — yes: kill the network and run Lab 4 again. Great party trick.</p>
+      </aside>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    width: 1280,
+    height: 720,
+    margin: 0.06,
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    slideNumber: 'c/t',
+    controls: true,
+    progress: true,
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+
+  // Light up the stack strip + retint accents by section phase
+  function setPhase (slide) {
+    var el = slide && (slide.dataset.phase ? slide : slide.closest('section[data-phase]'));
+    document.body.dataset.phase = (el && el.dataset.phase) || '';
+  }
+  Reveal.on('ready',        function (e) { setPhase(e.currentSlide); });
+  Reveal.on('slidechanged', function (e) { setPhase(e.currentSlide); });
+</script>
+</body>
+</html>
