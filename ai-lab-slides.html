@@ -9,8 +9,8 @@
     • Arrow keys / space to advance. ESC for slide overview.
 
   BEFORE THE TALK
-    • Search for [YOUR NAME], [CONFERENCE], and [REPO/BLOG URL]
-      and fill them in (slides 1 and 36–37).
+    • Search for [YOUR NAME], [CONTACT / MASTODON / SITE], and
+      [REPO/BLOG URL] and fill them in (slides 37–38).
 
   OFFLINE USE (recommended for conference wifi)
     This file loads reveal.js and fonts from CDNs. To vendor it:
@@ -136,6 +136,14 @@
     .panel.bad h3 { color: var(--sol-red); }
     .panel.good h3 { color: var(--acc-assemble); }
 
+    /* "while you're waiting" slide: install steps + QR code */
+    .wait-cols { align-items: flex-start; }
+    .wait-cols > div:first-child { flex: 1.7; }
+    .qr-col { text-align: center; }
+    .reveal svg.qr { display: block; width: 300px; height: 300px; margin: 0.5em auto 0; border-radius: 6px; shape-rendering: crispEdges; }
+    .reveal .wait-note { font-size: 0.6em; color: var(--sol-muted); margin: 0.6em 0 0; }
+    .reveal .wait-link { font-size: 0.8em; margin: 0.8em 0 0; }
+
     /* the signature: persistent stack strip, bottom-left */
     .stack-strip {
       position: fixed; left: 30px; bottom: 20px; z-index: 30;
@@ -175,13 +183,42 @@
 <div class="reveal">
   <div class="slides">
 
+    <!-- ═══════════ WHILE YOU WAIT ═══════════ -->
+
+    <section>
+      <p class="eyebrow">While you're waiting</p>
+      <h2>Get <code>limactl</code> installed</h2>
+      <div class="cols wait-cols">
+        <div>
+          <pre><code class="language-bash" data-trim>
+# macOS or Linux, with Homebrew
+brew install lima
+limactl --version
+
+# Download the lab files
+git clone https://github.com/mralexjuarez/txlf-ai-lab
+          </code></pre>
+          <p class="wait-note">No Homebrew? See <code>lima-vm.io/docs/installation</code></p>
+        </div>
+        <div class="qr-col">
+          <svg class="qr" role="img" aria-label="QR code linking to the slides" viewBox="0 0 41 41"><path fill="#fdf6e3" d="M0 0h41v41h-41z"/><path stroke="#002b36" d="M4 4.5h7m3 0h1m2 0h1m2 0h5m1 0h2m2 0h7m-33 1h1m5 0h1m3 0h1m1 0h1m1 0h3m1 0h1m2 0h1m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h3m2 0h1m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h10m3 0h1m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m1 0h3m3 0h2m2 0h1m-25 1h1m1 0h5m3 0h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-31 1h3m5 0h2m1 0h2m3 0h1m1 0h2m3 0h1m2 0h2m1 0h2m1 0h1m-31 1h2m2 0h1m2 0h1m1 0h2m2 0h1m5 0h2m1 0h3m1 0h1m1 0h2m-30 1h1m4 0h1m1 0h1m6 0h1m1 0h2m1 0h2m2 0h1m2 0h3m-29 1h1m1 0h3m2 0h2m1 0h1m4 0h1m1 0h1m2 0h4m1 0h3m2 0h1m-30 1h2m2 0h1m3 0h1m1 0h1m2 0h5m2 0h1m2 0h2m1 0h1m1 0h2m-32 1h2m1 0h3m1 0h2m3 0h3m2 0h1m1 0h1m4 0h2m3 0h2m-30 1h1m4 0h1m2 0h1m2 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h6m-31 1h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h4m1 0h2m3 0h1m-32 1h5m1 0h1m3 0h1m2 0h1m4 0h2m1 0h2m2 0h2m1 0h4m-31 1h1m2 0h4m1 0h3m2 0h1m4 0h3m2 0h4m1 0h2m-28 1h2m1 0h1m2 0h1m2 0h2m5 0h2m2 0h1m2 0h4m-31 1h4m1 0h2m2 0h1m2 0h6m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m6 0h4m1 0h1m1 0h1m2 0h3m1 0h2m1 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h4m1 0h1m2 0h2m4 0h3m1 0h3m4 0h1m-32 1h1m3 0h2m1 0h1m2 0h3m2 0h1m2 0h1m1 0h6m1 0h1m2 0h2m-32 1h1m1 0h5m1 0h5m1 0h1m2 0h1m1 0h1m2 0h1m1 0h5m2 0h2m-25 1h1m1 0h1m1 0h3m1 0h1m1 0h4m2 0h1m3 0h1m1 0h3m-33 1h7m3 0h1m3 0h5m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h2m3 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h4m1 0h1m3 0h1m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h4m2 0h1m2 0h1m2 0h4m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m5 0h3m-31 1h7m1 0h1m2 0h1m1 0h2m1 0h2m2 0h1m1 0h4m1 0h1m3 0h1"/></svg>
+          <p class="wait-note">Scan for the slides</p>
+        </div>
+      </div>
+      <p class="wait-link">GitHub → <a href="https://github.com/mralexjuarez/txlf-ai-lab">github.com/mralexjuarez/txlf-ai-lab</a></p>
+      <aside class="notes">
+        <p><strong>Before the start.</strong> Leave this up while people arrive. Getting <code>limactl</code> installed is the first thing that needs to happen.</p>
+        <p>Point out the QR code for the slides and the GitHub link for the lab files. On Linux, Homebrew works too, and the install page has a binary option.</p>
+      </aside>
+    </section>
+
     <!-- ═══════════ INTRO ═══════════ -->
 
     <section>
       <p class="eyebrow">Hands-on tutorial · 2 hours</p>
       <h1>Your Own<br>Private Stack</h1>
       <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong> — no cloud, no API key, no GPU.</p>
-      <p class="faint" style="font-size:0.6em; margin-top:2.2em;">[YOUR NAME] · [CONFERENCE] · [DATE]</p>
+      <p class="faint" style="font-size:0.6em; margin-top:2.2em;">Alex Juarez · Texas Linux Fest · November 6, 2026</p>
       <aside class="notes">
         <p><strong>⏱ 0:00.</strong> Welcome. Quick intro: who you are, what you make, why local-first computing appeals to you.</p>
         <p><strong>The promise:</strong> in two hours everyone leaves with a working local AI lab — a language model answering questions about their own documents — defined entirely by one folder and one YAML file. Delete it, rebuild it, take it home.</p>
