@@ -21,8 +21,15 @@ disk: "30GiB"
 
 # Share ONLY the workshop folder, and make it writable.
 # (Lima's default is your whole home directory, read-only.)
+#
+# `location` is the folder on the host. `mountPoint` is where that folder shows
+# up in the guest, and Lima defaults it to the host path (e.g. /Users/you/ai-lab
+# on macOS) -- which is NOT the VM's home directory. Setting it explicitly makes
+# the shared folder appear at ~/ai-lab inside the VM, as the README promises.
+# (In `mountPoint`, {{.Home}} is the *guest* home, not the host's.)
 mounts:
   - location: "~/ai-lab"
+    mountPoint: "{{.Home}}/ai-lab"
     writable: true
 
 # Make the Ollama API inside the VM reachable at localhost:11434 on the host.
@@ -46,7 +53,7 @@ provision:
       systemctl daemon-reload
       systemctl enable --now ollama
 
-# Don't report "ready" until Ollama is actually answering.
+# Don't report "ready" until Ollama is answering and the share is populated.
 probes:
   - description: "ollama API to be ready"
     script: |
@@ -54,3 +61,17 @@ probes:
       until curl -sf http://localhost:11434/api/version >/dev/null 2>&1; do
         sleep 3
       done
+  # An empty shared folder is otherwise silent: the VM boots fine and you only
+  # find out in step 6 when smoke_test.py is missing.
+  - description: "workshop files to be visible at ~/ai-lab"
+    script: |
+      #!/bin/bash
+      test -f "{{.Home}}/ai-lab/smoke_test.py"
+    hint: |
+      The VM is up, but ~/ai-lab/smoke_test.py is not there, which means the
+      folder Lima shared is empty or in the wrong place.
+      Check that ai-lab.yaml sits in the same folder as smoke_test.py (see step 2
+      of README.md), then recreate the instance:
+        limactl delete ai-lab
+        limactl start ./ai-lab.yaml
+      The VM is still usable meanwhile: `limactl shell ai-lab`.
