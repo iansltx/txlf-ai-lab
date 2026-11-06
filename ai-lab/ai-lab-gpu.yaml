@@ -1,0 +1,131 @@
+# ai-lab-gpu.yaml — the same workshop lab, with a GPU inside the VM
+#
+# Apple Silicon only (macOS 14+), because it uses Lima's krunkit driver, which
+# hands the guest a virtio-gpu backed by Mesa's Venus Vulkan driver. Vulkan
+# workloads -- llama.cpp -- can then use the Mac's GPU from inside the guest.
+#
+# Ollama cannot use it: its Linux builds ship CPU and CUDA runners, no Vulkan.
+# Ollama still runs here, on the CPU, because the RAG labs need its embeddings;
+# the GPU path is llama.cpp in a container. README.md walks through it under
+# "Option B: the GPU lab".
+#
+# One-time host setup:
+#   brew tap slp/krun
+#   brew trust slp/krun            # Homebrew >= 4.6 asks for this explicitly
+#   brew install krunkit
+#
+# Start it:        limactl start ./ai-lab-gpu.yaml
+# Get a shell:     limactl shell ai-lab-gpu
+# Throw it away:   limactl delete ai-lab-gpu
+
+minimumLimaVersion: "2.0.0"
+
+# krunkit instead of the default vz driver: this is the whole point of this file.
+vmType: krunkit
+
+# krunkit only supports virtiofs, and it cannot enforce read-only mounts.
+mountType: virtiofs
+
+# Pin the OS for repeatability. arm64 only: krunkit needs Hypervisor.framework.
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+# Right-sized for a 3B model.
+cpus: 4
+memory: "8GiB"
+disk: "30GiB"
+
+# Share ONLY the workshop folder, and make it writable.
+#
+# `location` is the folder on the host. `mountPoint` is where that folder shows
+# up in the guest, and Lima defaults it to the host path (e.g. /Users/you/ai-lab
+# on macOS) -- which is NOT the VM's home directory. Setting it explicitly makes
+# the shared folder appear at ~/ai-lab inside the VM, as the README promises.
+# (In `mountPoint`, {{.Home}} is the *guest* home, not the host's.)
+#
+# This path must be a REAL directory, not a symlink. vz follows symlinks happily,
+# so Option A does not care, but krunkit's virtiofs backend panics on one and the
+# VM never gets an SSH server:
+#   virtio_fs: failed to create worker: Message too long (os error 40)
+#   Failed to activate device: BadActivate
+# and `limactl start` gives up with "did not receive an event with the 'running'
+# status". Check with `ls -ld ~/ai-lab` ('l' = symlink) and, if it is one, start
+# this template against the real path instead:
+#   limactl start --set '.mounts[0].location="/Users/you/code/ai-lab"' ./ai-lab-gpu.yaml
+mounts:
+  - location: "~/ai-lab"
+    mountPoint: "{{.Home}}/ai-lab"
+    writable: true
+
+# Make the Ollama API inside the VM reachable at localhost:11434 on the host,
+# and give llama-server a predictable port too.
+#
+# 11434 is also what ai-lab.yaml (the CPU VM) forwards, so the two instances
+# cannot both claim it. Stop the CPU VM while this one runs, or remap this one:
+#   limactl start --set '.portForwards[0].hostPort=11435' ./ai-lab-gpu.yaml
+portForwards:
+  - guestPort: 11434
+    hostPort: 11434
+  - guestPort: 8080
+    hostPort: 8080
+
+# Everything the lab needs, installed automatically on first boot.
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y python3-pip python3-venv
+      curl -fsSL https://ollama.com/install.sh | sh
+      # The installer skips starting the service while the VM is still booting
+      # ("systemd is not running"), so start it explicitly.
+      systemctl daemon-reload
+      systemctl enable --now ollama
+
+# Don't report "ready" until Ollama is answering, the share is populated, and
+# the guest actually has a GPU device to hand to llama.cpp.
+probes:
+  - description: "ollama API to be ready"
+    script: |
+      #!/bin/bash
+      until curl -sf http://localhost:11434/api/version >/dev/null 2>&1; do
+        sleep 3
+      done
+  - description: "workshop files to be visible at ~/ai-lab"
+    script: |
+      #!/bin/bash
+      test -f "{{.Home}}/ai-lab/smoke_test.py"
+    hint: |
+      The VM is up, but ~/ai-lab/smoke_test.py is not there, which means the
+      folder Lima shared is empty or in the wrong place.
+      Check that ai-lab-gpu.yaml sits in the same folder as smoke_test.py, then
+      recreate the instance:
+        limactl delete ai-lab-gpu
+        limactl start ./ai-lab-gpu.yaml
+  - description: "GPU device to be exposed to the guest"
+    script: |
+      #!/bin/bash
+      test -e /dev/dri/renderD128
+    hint: |
+      The guest has no /dev/dri/renderD128, so there is no GPU for llama.cpp to
+      use. krunkit's virtio-gpu needs macOS 14+ on Apple Silicon and a working
+      krunkit install (brew install krunkit from the slp/krun tap). Check the
+      host agent log for krunkit errors:
+        tail -50 ~/.lima/ai-lab-gpu/ha.stderr.log
+      If the VM ever failed to boot with "did not receive an event with the
+      'running' status" and ~/.lima/ai-lab-gpu/krunkit.log says "Message too
+      long", the shared folder is a symlink -- see the note above `mounts:`.
+  - description: "container runtime for the GPU llama.cpp image"
+    script: |
+      #!/bin/bash
+      command -v nerdctl
+    hint: |
+      nerdctl is missing, so the GPU llama.cpp container cannot run. Lima
+      installs it on first boot; if it did not, install it yourself inside the
+      VM and start the instance again:
+        limactl shell ai-lab-gpu
+        sudo apt-get install -y containerd
+        # or follow https://github.com/containerd/nerdctl to get nerdctl-full
