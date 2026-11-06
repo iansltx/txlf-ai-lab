@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Your Own Private Stack — workshop slides (reveal.js 5)
+  Roll Your Own — workshop slides (reveal.js 5)
   ══════════════════════════════════════════════════════
   PRESENTING
     • Open this file in a browser. Press F for fullscreen.
@@ -19,7 +19,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Own Private Stack — Local LLMs &amp; RAG with Lima + Ollama</title>
+  <title>Roll Your Own — Local LLMs &amp; RAG with Lima + Ollama</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
@@ -140,6 +140,11 @@
     .reveal .wait-note { font-size: 0.6em; color: var(--sol-muted); margin: 0.6em 0 0; }
     .reveal .wait-link { font-size: 0.8em; margin: 0.8em 0 0; }
 
+    /* parameters and weights diagram */
+    .reveal svg.net { display: block; width: 1000px; max-width: 100%; height: auto; margin: 0 auto; font-family: var(--r-main-font); }
+    .reveal .net-notes { font-size: 0.72em; margin-top: 0.4em; }
+    .reveal .net-notes li { margin: 0.2em 0; }
+
     /* the signature: persistent stack strip, bottom-left */
     .stack-strip {
       position: fixed; left: 30px; bottom: 20px; z-index: 30;
@@ -212,7 +217,7 @@ git clone https://github.com/mralexjuarez/txlf-ai-lab
 
     <section>
       <p class="eyebrow">Hands-on tutorial · 2...ish hours</p>
-      <h1>Your Own<br>Private Stack</h1>
+      <h1>Roll Your Own</h1>
       <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong></p>
       <p class="faint" style="font-size:0.6em; margin-top:2.2em;">Alex Juarez · Texas Linux Fest · November 6, 2026</p>
       <aside class="notes">
@@ -274,8 +279,8 @@ limactl --version
       <p class="eyebrow">Motivation</p>
       <h2>Why This Talk</h2>
       <ul>
-        <li>I give talks on things I want to learn more about</li>
-        <li>Preparing a talk pushes me to dig in and try it myself</li>
+        <li>I wanted to personally learn more about this topic</li>
+        <li>It's always fun to get "under the hood"</li>
       </ul>
       <aside class="notes">
         <p>Keep it short and personal. Say it in your own words, then move on to why running this locally is worth doing.</p>
@@ -511,11 +516,30 @@ probes:
 
     <section data-phase="ollama">
       <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Parameters and weights, pictured</h2>
+      <svg class="net" role="img" viewBox="0 0 1180 470" aria-label="The same small neural network drawn twice. On the left, one connection is highlighted as a parameter. On the right, every connection has a trained value, shown by line thickness, with sample values 0.82, 0.71, 0.58 and minus 0.61."><text x="280" y="30" text-anchor="middle" font-size="27" font-weight="600" fill="var(--sol-bright)">Parameters: the connections</text><text x="900" y="30" text-anchor="middle" font-size="27" font-weight="600" fill="var(--sol-bright)">Weights: their trained values</text><line x1="80" y1="130" x2="280" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="130" x2="280" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="130" x2="280" y2="380" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="230" x2="280" y2="80" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="230" x2="280" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="230" x2="280" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="230" x2="280" y2="380" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="330" x2="280" y2="80" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="330" x2="280" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="330" x2="280" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="330" x2="280" y2="380" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="80" x2="480" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="80" x2="480" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="180" x2="480" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="180" x2="480" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="280" x2="480" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="280" x2="480" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="380" x2="480" y2="180" stroke="var(--sol-faint)" stroke-width="2"/><line x1="280" y1="380" x2="480" y2="280" stroke="var(--sol-faint)" stroke-width="2"/><line x1="80" y1="130" x2="280" y2="80" stroke="var(--accent)" stroke-width="5"/><circle cx="80" cy="130" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="80" cy="230" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="80" cy="330" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="280" cy="80" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="280" cy="180" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="280" cy="280" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="280" cy="380" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="480" cy="180" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="480" cy="280" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><rect x="78" y="49" width="170" height="32" rx="5" fill="var(--sol-bg)" stroke="var(--accent)"/><text x="163" y="72" text-anchor="middle" font-size="21" font-weight="600" fill="var(--sol-bright)">one parameter</text><line x1="700" y1="130" x2="900" y2="80" stroke="var(--accent)" stroke-width="6.7"/><line x1="700" y1="130" x2="900" y2="180" stroke="var(--sol-muted)" stroke-width="2.0" stroke-dasharray="7 5"/><line x1="700" y1="130" x2="900" y2="280" stroke="var(--accent)" stroke-width="3.2"/><line x1="700" y1="130" x2="900" y2="380" stroke="var(--accent)" stroke-width="1.4"/><line x1="700" y1="230" x2="900" y2="80" stroke="var(--sol-muted)" stroke-width="2.9" stroke-dasharray="7 5"/><line x1="700" y1="230" x2="900" y2="180" stroke="var(--accent)" stroke-width="5.5"/><line x1="700" y1="230" x2="900" y2="280" stroke="var(--sol-muted)" stroke-width="1.6" stroke-dasharray="7 5"/><line x1="700" y1="230" x2="900" y2="380" stroke="var(--accent)" stroke-width="4.0"/><line x1="700" y1="330" x2="900" y2="80" stroke="var(--accent)" stroke-width="1.8"/><line x1="700" y1="330" x2="900" y2="180" stroke="var(--sol-muted)" stroke-width="4.6" stroke-dasharray="7 5"/><line x1="700" y1="330" x2="900" y2="280" stroke="var(--accent)" stroke-width="2.5"/><line x1="700" y1="330" x2="900" y2="380" stroke="var(--accent)" stroke-width="6.0"/><line x1="900" y1="80" x2="1100" y2="180" stroke="var(--accent)" stroke-width="5.1"/><line x1="900" y1="80" x2="1100" y2="280" stroke="var(--sol-muted)" stroke-width="2.3" stroke-dasharray="7 5"/><line x1="900" y1="180" x2="1100" y2="180" stroke="var(--accent)" stroke-width="3.6"/><line x1="900" y1="180" x2="1100" y2="280" stroke="var(--accent)" stroke-width="1.6"/><line x1="900" y1="280" x2="1100" y2="180" stroke="var(--sol-muted)" stroke-width="1.8" stroke-dasharray="7 5"/><line x1="900" y1="280" x2="1100" y2="280" stroke="var(--accent)" stroke-width="6.3"/><line x1="900" y1="380" x2="1100" y2="180" stroke="var(--accent)" stroke-width="1.4"/><line x1="900" y1="380" x2="1100" y2="280" stroke="var(--sol-muted)" stroke-width="5.3" stroke-dasharray="7 5"/><circle cx="700" cy="130" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="700" cy="230" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="700" cy="330" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="900" cy="80" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="900" cy="180" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="900" cy="280" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="900" cy="380" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="1100" cy="180" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><circle cx="1100" cy="280" r="17" fill="var(--sol-panel)" stroke="var(--sol-muted)" stroke-width="2"/><rect x="764" y="89" width="72" height="32" rx="5" fill="var(--sol-bg)" stroke="var(--sol-faint)"/><text x="800" y="112" text-anchor="middle" font-size="21" font-weight="600" fill="var(--sol-bright)">0.82</text><rect x="764" y="339" width="72" height="32" rx="5" fill="var(--sol-bg)" stroke="var(--sol-faint)"/><text x="800" y="362" text-anchor="middle" font-size="21" font-weight="600" fill="var(--sol-bright)">0.71</text><rect x="964" y="114" width="72" height="32" rx="5" fill="var(--sol-bg)" stroke="var(--sol-faint)"/><text x="1000" y="137" text-anchor="middle" font-size="21" font-weight="600" fill="var(--sol-bright)">0.58</text><rect x="964" y="314" width="72" height="32" rx="5" fill="var(--sol-bg)" stroke="var(--sol-faint)"/><text x="1000" y="337" text-anchor="middle" font-size="21" font-weight="600" fill="var(--sol-bright)">−0.61</text><text x="900" y="438" text-anchor="middle" font-size="20" fill="var(--sol-muted)">Thicker = stronger · dashed = negative</text><text x="280" y="438" text-anchor="middle" font-size="20" fill="var(--sol-muted)">Same shape, before training</text></svg>
+      <ul class="net-notes">
+        <li>This toy network has 20 connections, so <strong>20 parameters</strong></li>
+        <li><code>llama3.2:3b</code> has about <strong>3 billion</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>Both sides are the same network. Left: each line is a parameter, a number the model can adjust. Right: after training, each line holds a value, and that's the weight.</p>
+        <p>A strong line means one value has a big effect on the next, and a negative one pushes it the other way. Training is what found these values.</p>
+        <p>Be upfront that this is a simplified picture with made-up numbers. Llama's real architecture is a transformer, not this little network, but the idea of learned numbers is the same.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
       <h2>Ollama: runs the model</h2>
       <ul>
         <li>An independent, MIT-licensed project, <strong>not from Meta</strong></li>
         <li>Downloads, loads, and runs models on your machine</li>
-        <li>Works with <strong>many model families</strong>, not just Llama</li>
+        <li>Works with <strong>many model families</strong>, not just Llama
+          <ul>
+            <li>Browse them: <a href="https://ollama.com/library">ollama.com/library</a></li>
+          </ul>
+        </li>
         <li>Its job: <strong>make a model available as a local service</strong></li>
       </ul>
       <aside class="notes">
@@ -641,10 +665,20 @@ python3 smoke_test.py
         <tr><td>Full precision (16-bit)</td><td>≈ 6 GB</td></tr>
         <tr><td><strong>4-bit quantized (what you pulled)</strong></td><td><strong>≈ 2 GB</strong></td></tr>
       </table>
-      <p class="sub">Fewer bits per parameter · modest quality tax · <strong>this</strong> is why "LLM on a laptop" is a sentence.</p>
+      <ul style="font-size:0.85em;">
+        <li><strong>Why:</strong> every weight has to fit in memory, so fewer bits means a model fits on a laptop</li>
+        <li><strong>How:</strong> round each weight to a coarser value, like saving a photo as a JPEG</li>
+        <li><strong>The quality tax:</strong> small errors add up across billions of weights
+          <ul>
+            <li>Still fluent, but more slips on facts, math, and multi-step logic</li>
+            <li>The fewer the bits, the more it shows</li>
+          </ul>
+        </li>
+      </ul>
       <aside class="notes">
         <p>"3B" = three billion learned numbers. Store each in 4 bits instead of 16 and the model fits in laptop RAM with room to spare. Quality cost is real but modest at this size.</p>
-        <p>Fun reveal: everyone in this room already pulled a 4-bit GGUF in Lab 0 without knowing — that's good defaults doing their job.</p>
+        <p>The JPEG comparison is the one to land. A compressed photo still looks like the same photo, and you notice the damage in the fine detail. Likewise, a 4-bit model doesn't turn into gibberish. You just get somewhat more wrong answers on the harder questions, and that's a trade worth making when the alternative is not running it at all.</p>
+        <p>Fun reveal: everyone in this room already pulled a 4-bit GGUF on the Build your lab slide without knowing — that's good defaults doing their job.</p>
       </aside>
     </section>
 
