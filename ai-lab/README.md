@@ -204,9 +204,9 @@ nerdctl run --rm -ti --device /dev/dri -v ~/ai-lab/models:/models \
 
 `-ngl 99` puts every layer on the GPU. The image is about 900 MB and carries the
 patched Mesa plus a Vulkan build of llama.cpp; `nerdctl` itself comes with Lima.
-The first run prints the device it found —
-`Vulkan0: Virtio-GPU Venus (Apple M1 Max)` — and the answer ends with
-`[ Prompt: 202.4 t/s | Generation: 46.7 t/s ]`.
+The answer ends with `[ Prompt: 202.4 t/s | Generation: 46.7 t/s ]`, and the
+commands below report the device they use: `Vulkan0: Virtio-GPU Venus (Apple M1
+Max)`.
 
 Keep `-ti` on that command. Without a terminal, `llama-cli` falls into its chat
 loop, reads end-of-file forever and fills the VM's disk with prompt markers.

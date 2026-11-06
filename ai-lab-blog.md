@@ -107,7 +107,7 @@ That last property is why we're using it. A README that says "install Python 3.1
 
 Lima was started in **May 2021 by Akihiro Suda**, a containerd maintainer, with a modest initial goal: give macOS users a good way to run containerd and its companion CLI, nerdctl, since containers are a Linux kernel feature and Macs don't have one. The tool turned out to be far more generally useful. It joined the **CNCF as a sandbox project in September 2022**, and other tools quietly built on top of it — Colima, Rancher Desktop, and AWS's Finch all use Lima under the hood, so you may have been running it for years without knowing.
 
-Two recent milestones matter for us. Lima **v1.0 shipped in November 2024**, switching the default macOS driver to Apple's Virtualization.framework for much faster file sharing. Then Lima was promoted to a **CNCF incubating project in October 2025**, and **v2.0 landed that November with an explicit new focus: AI workflows**. The project's own headline use case for v2 is running AI tools inside a VM so that a misbehaving model, script, or agent can't touch your host — if it runs `curl | sh` on something malicious, the blast radius is a VM you can delete. There's even a new `krunkit` driver that gives local LLMs GPU acceleration on Apple Silicon. In other words: using Lima as an AI sandbox isn't a clever trick we invented for this workshop. It's what the project itself now says it's for.
+Two recent milestones matter for us. Lima **v1.0 shipped in November 2024**, switching the default macOS driver to Apple's Virtualization.framework for much faster file sharing. Then Lima was promoted to a **CNCF incubating project in October 2025**, and **v2.0 landed that November with an explicit new focus: AI workflows**. The project's own headline use case for v2 is running AI tools inside a VM so that a misbehaving model, script, or agent can't touch your host — if it runs `curl | sh` on something malicious, the blast radius is a VM you can delete. There's even a new `krunkit` driver that can hand a VM the Mac's GPU as a Vulkan device — GPU-accelerated local LLMs on Apple Silicon, with an asterisk we get to in [Take it home](#take-it-home). In other words: using Lima as an AI sandbox isn't a clever trick we invented for this workshop. It's what the project itself now says it's for.
 
 ### Why a VM for AI work, specifically
 
@@ -502,7 +502,15 @@ You leave with a folder and a YAML file, which means you leave with everything. 
 
 **Give it a face.** Point Open WebUI (or any OpenAI-compatible client) at your forwarded port and you have a private ChatGPT-alike over your own docs.
 
-**Go faster on Apple Silicon.** Lima v2's `krunkit` driver enables GPU acceleration for VMs on macOS — worth exploring once the basics feel comfortable.
+**Go faster on Apple Silicon.** Lima v2's `krunkit` driver can put the Mac's GPU *inside* the VM as a Vulkan device, and `ai-lab-gpu.yaml` next to `ai-lab.yaml` builds exactly that: the same lab, on that driver. Two asterisks. It wants macOS 14+ on Apple Silicon, and the acceleration is Vulkan — which Ollama's Linux builds don't speak, so Ollama stays on the CPU there and keeps powering the RAG labs' embeddings. Generation on the GPU comes from llama.cpp, in a Fedora-based container, because the Venus driver it needs is a patched Mesa that Ubuntu doesn't ship:
+
+```bash
+nerdctl run --rm -ti --device /dev/dri -v ~/ai-lab/models:/models \
+  ghcr.io/unsuman/fedora-vgpu-llama \
+  llama-cli -m /models/llama3.2-3b.gguf -ngl 99 -st -p "Hello, world"
+```
+
+Measured on an M1 Max, the same 3B model generates at about 45 tokens per second that way. The README's Option B walks through it from a standing start — host setup, reusing the model you already pulled in the CPU VM, and the one gotcha: the shared folder has to be a real directory, not a symlink.
 
 **Share the lab.** The `ai-lab.yaml` file is the environment. Send it to a colleague, and one `limactl start` later they have your setup. That was the promise of the workshop's title, and now it's just a fact about your laptop.
 
@@ -530,6 +538,8 @@ limactl start ./ai-lab.yaml     # good as new, five minutes
 **Linux: `limactl start` complains about virtualization.** Ensure KVM is available (`ls /dev/kvm`), QEMU is installed, and your user is in the `kvm` group (`sudo usermod -aG kvm $USER`, then log out and in).
 
 **"I didn't do the pre-work" (workshop day).** Sit with a neighbor who did for the labs — the walkthrough is designed to be followable on one machine per pair — and run Lab 0 tonight; everything here works identically at home.
+
+**The GPU lab (Option B) fails to boot with "did not receive an event with the 'running' status".** Read `~/.lima/ai-lab-gpu/krunkit.log` on the host. If it ends in `virtio_fs: failed to create worker: Message too long (os error 40)`, the shared folder path is a symlink and `krunkit`'s virtiofs backend will not accept one — the default `vz` driver is perfectly happy with one. Point the template at the real path instead: `cd ~/ai-lab && pwd -P` prints it, then `limactl start --set '.mounts[0].location="/Users/you/code/ai-lab"' ./ai-lab-gpu.yaml`.
 
 ---
 

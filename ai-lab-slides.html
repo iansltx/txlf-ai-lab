@@ -350,7 +350,7 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <aside class="notes">
         <p>Started May 2021 by Akihiro Suda, a containerd maintainer. Original itch: containers are a Linux kernel feature, Macs don't have one — give Mac users containerd + nerdctl. Turned out to be generally useful.</p>
         <p>Lots of tools quietly build on it — if you've used Colima, Rancher Desktop, or AWS Finch, you've run Lima without knowing.</p>
-        <p><strong>The punchline for us:</strong> Lima v2.0 (Nov 2025) made AI workflows a headline use case — running models and AI agents inside a VM so they can't touch your host. There's even a krunkit driver for GPU-accelerated local LLMs on Apple Silicon. We're not misusing a container tool today; we're using Lima exactly as its maintainers now intend.</p>
+        <p><strong>The punchline for us:</strong> Lima v2.0 (Nov 2025) made AI workflows a headline use case — running models and AI agents inside a VM so they can't touch your host. There's even a krunkit driver that can hand a VM the Mac's GPU as a Vulkan device, for GPU-accelerated local LLMs on Apple Silicon. We're not misusing a container tool today; we're using Lima exactly as its maintainers now intend.</p>
       </aside>
     </section>
 
@@ -1035,7 +1035,7 @@ python3 web.py        # inside the VM, venv active
         <li><strong>Bigger brain</strong> → <code>ollama pull qwen3:4b</code> / <code>gemma3:4b</code> / <code>phi4-mini</code>, change one constant</li>
         <li><strong>Feels faster</strong> → <code>"stream": true</code>, print as it generates</li>
         <li><strong>A face</strong> → point Open WebUI at your forwarded port</li>
-        <li><strong>Apple Silicon speed</strong> → Lima v2's <code>krunkit</code> GPU driver</li>
+        <li><strong>Apple Silicon speed</strong> → Lima v2's <code>krunkit</code> driver: a Vulkan GPU for llama.cpp</li>
       </ul>
       <aside class="notes">
         <p><strong>⏱ ~1:45.</strong> Each of these is a one-line-ish change — say that explicitly, it keeps momentum alive after the workshop.</p>
@@ -1078,7 +1078,7 @@ limactl start ./ai-lab.yaml      # good as new in minutes
       <p class="sub">Alex Juarez · alex@alexjuarez.com<br><a href="https://github.com/mralexjuarez/txlf-ai-lab">github.com/mralexjuarez/txlf-ai-lab</a></p>
       <aside class="notes">
         <p><strong>⏱ 1:50 — Q&amp;A.</strong> Questions to expect, with short answers:</p>
-        <p><em>"GPU?"</em> — everything today was CPU on purpose; Ollama uses a GPU automatically when present, and krunkit brings GPU into Lima VMs on Apple Silicon.</p>
+        <p><em>"GPU?"</em> — everything today was CPU on purpose. Ollama uses a GPU when its build supports it (CUDA on Linux, Metal on macOS), but there is none inside a Lima VM by default: krunkit hands the guest a <em>Vulkan</em> device, which llama.cpp uses and Ollama does not.</p>
         <p><em>"How big can the corpus get?"</em> — Chroma embedded handles far more than you'd guess; when ingest or query time annoys you, that's the signal to graduate to a served vector DB.</p>
         <p><em>"Is local actually private?"</em> — yes: kill the network and run Lab 4 again. Great party trick.</p>
       </aside>
