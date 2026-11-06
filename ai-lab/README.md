@@ -33,7 +33,11 @@ Anything v1.0 or newer works; v2.x is current.
 ## 2. Put this folder in place
 
 Unzip or clone so that this README lives at `~/ai-lab/README.md`.
-The Lima template mounts `~/ai-lab` into the VM by that exact path.
+
+That exact host path matters: `ai-lab.yaml` shares `~/ai-lab` with the VM, and
+inside the VM it appears as `~/ai-lab` too. If you clone somewhere else, the VM
+still boots fine but `~/ai-lab` there is empty — Lima quietly creates a blank
+`~/ai-lab` on the host and shares that instead.
 
 ## 3. Create the VM
 
@@ -55,14 +59,16 @@ limactl shell ai-lab ollama pull nomic-embed-text
 
 ## 5. Python setup (inside the VM)
 
+From the host:
+
 ```
-cd ~/ai-lab
 limactl shell ai-lab
 ```
 
-You are now inside the VM, in this folder. Then:
+Then, inside the VM, go to the shared folder and set up Python:
 
 ```
+cd ~/ai-lab
 python3 -m venv ~/venv
 source ~/venv/bin/activate
 pip install requests chromadb
@@ -71,11 +77,17 @@ pip install requests chromadb
 (The venv lives in the VM's home directory, not in the shared folder —
 shared-folder filesystems and venvs don't always get along.)
 
+If `limactl shell` printed `cd: /Users/you/ai-lab: No such file or directory`
+before your prompt, that is harmless: the folder is mounted at `~/ai-lab` in
+the VM rather than at its host path, so the shell just falls back. `cd ~/ai-lab`
+is always the way in.
+
 ## 6. Smoke test
 
 Still inside the VM, with the venv active:
 
 ```
+cd ~/ai-lab
 python3 smoke_test.py
 ```
 
