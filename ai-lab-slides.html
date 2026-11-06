@@ -211,9 +211,9 @@ git clone https://github.com/mralexjuarez/txlf-ai-lab
     <!-- ═══════════ INTRO ═══════════ -->
 
     <section>
-      <p class="eyebrow">Hands-on tutorial · 2 hours</p>
+      <p class="eyebrow">Hands-on tutorial · 2...ish hours</p>
       <h1>Your Own<br>Private Stack</h1>
-      <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong> — no cloud, no API key, no GPU.</p>
+      <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong></p>
       <p class="faint" style="font-size:0.6em; margin-top:2.2em;">Alex Juarez · Texas Linux Fest · November 6, 2026</p>
       <aside class="notes">
         <p><strong>⏱ 0:00.</strong> Welcome. Quick intro: who you are, what you make, why local-first computing appeals to you.</p>
@@ -227,8 +227,8 @@ git clone https://github.com/mralexjuarez/txlf-ai-lab
       <p class="eyebrow">Why we're here</p>
       <h2>The goal</h2>
       <ul>
-        <li>Explore how you can work with local LLM models</li>
-        <li>Run everything on your own laptop</li>
+        <li>Explore how to work with local LLM models</li>
+        <li>Have fun and learn!</li>
       </ul>
       <aside class="notes">
         <p>State the goal plainly before moving on to setup.</p>
@@ -260,7 +260,7 @@ limactl --version
         <tr><td>0:00</td><td>Why local, the four parts</td><td class="faint">—</td></tr>
         <tr><td>0:10</td><td><strong>Lima</strong> — disposable Linux, as a file</td><td>Lab 1 · kick the tires</td></tr>
         <tr><td>0:35</td><td><strong>Ollama</strong> — models as a service (yours)</td><td>Lab 2 · talk to a model</td></tr>
-        <tr><td>0:55</td><td><strong>RAG</strong> — give the model an open book</td><td>Labs 3a–3c · embed, ingest, search</td></tr>
+        <tr><td>0:55</td><td><strong>RAG</strong> — give the model an open book</td><td>Labs 3a–3d · embed, ingest, search, PDF</td></tr>
         <tr><td>1:15</td><td><strong>Assemble</strong> — ask your documents</td><td>Lab 4 · the payoff</td></tr>
         <tr><td>1:50</td><td>Where it breaks · take it home · Q&amp;A</td><td class="faint">—</td></tr>
       </table>
@@ -276,8 +276,6 @@ limactl --version
       <ul>
         <li>I give talks on things I want to learn more about</li>
         <li>Preparing a talk pushes me to dig in and try it myself</li>
-        <li>Explaining it shows me whether I really understand it</li>
-        <li>Running LLMs locally was next on my list</li>
       </ul>
       <aside class="notes">
         <p>Keep it short and personal. Say it in your own words, then move on to why running this locally is worth doing.</p>
@@ -290,7 +288,6 @@ limactl --version
       <ul>
         <li><strong>Privacy</strong> — your documents never leave your laptop</li>
         <li><strong>Cost</strong> — no meter running while you learn</li>
-        <li><strong>Offline</strong> — works on a plane, works in a demo</li>
         <li><strong>Understanding</strong> — every moving part is visible &amp; yours</li>
       </ul>
       <aside class="notes">
@@ -342,7 +339,6 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <ul>
         <li><strong>2021</strong> — Akihiro Suda: run containerd/nerdctl on Macs</li>
         <li><strong>2022</strong> — joins CNCF (sandbox)</li>
-        <li>You may already run it: <strong>Colima · Rancher Desktop · Finch</strong></li>
         <li><strong>Nov 2024</strong> — v1.0</li>
         <li><strong>Oct/Nov 2025</strong> — CNCF <em>incubating</em>; <strong>v2.0 targets AI workflows</strong></li>
       </ul>
@@ -357,7 +353,7 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <p class="eyebrow">Part 1 · Lima</p>
       <h2>Why a VM for AI work?</h2>
       <ul>
-        <li><strong>Isolation</strong> — the AI ecosystem loves <code>curl | sh</code>. Fine… in here.</li>
+        <li><strong>Isolation</strong> — the AI ecosystem loves <code>curl | sh</code> Use it in a VM</li>
         <li><strong>Repeatability</strong> — fast-moving deps, pinned OS, zero "works on my machine"</li>
         <li><strong>Disposability</strong> — rebuild costs one command, so break things freely</li>
       </ul>
@@ -467,6 +463,11 @@ probes:
     <!-- ═══════════ PART 2 · OLLAMA ═══════════ -->
 
     <section data-phase="ollama">
+      <p class="eyebrow">Part 2</p>
+      <h1>Running llama using Ollama</h1>
+    </section>
+
+    <section data-phase="ollama">
       <p class="eyebrow">Part 2 · Ollama</p>
       <h2>Llama: the model</h2>
       <ul>
@@ -479,6 +480,32 @@ probes:
       <aside class="notes">
         <p><strong>⏱ 0:35.</strong> The names trip everyone up, so separate them first. Llama is the thing that thinks. On its own it's just a very large file of numbers, and it can't do anything until something runs it.</p>
         <p>This room will care about the license: the weights are downloadable, but Meta's license isn't an OSI open source license.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Parameters and weights</h2>
+      <ul>
+        <li><strong>Parameters</strong> — the adjustable numbers inside a model
+          <ul>
+            <li>Each one sets how strongly one value influences the next</li>
+            <li>No single number means anything on its own</li>
+            <li>Together they capture patterns from training text, used to predict the next token</li>
+            <li>The count tells you its size: <code>llama3.2:3b</code> has about 3 billion</li>
+          </ul>
+        </li>
+        <li><strong>Weights</strong> — the values those numbers hold after training
+          <ul>
+            <li>This is what the model learned, and what you download</li>
+          </ul>
+        </li>
+        <li>Think of parameters as the knobs and weights as their settings</li>
+      </ul>
+      <aside class="notes">
+        <p>A useful way to say it: your prompt becomes numbers, those numbers get multiplied and combined with the parameters over and over, and what comes out is a score for every possible next token. You can't point at one parameter and say "this one knows about Texas". The knowledge is spread across all of them.</p>
+        <p>People often use the two words interchangeably, and that's fine for today. Strictly speaking, weights are the main kind of parameter.</p>
+        <p>Training is what sets the knobs. Running the model only reads them, so nothing here changes when you ask it a question.</p>
       </aside>
     </section>
 
@@ -510,7 +537,40 @@ probes:
         <tr><td><strong>Python scripts</strong></td><td>Plain glue code</td><td>Connect the pieces</td></tr>
       </table>
       <aside class="notes">
-        <p>Keep this quick, since it's the map for everything after this. Ollama runs two models for us: one that writes and one that turns text into vectors. We haven't met embeddings or Chroma yet, and Part 3 covers both.</p>
+        <p>Keep this quick, since it's the map for everything after this. Ollama runs two models for us: one that writes and one that turns text into vectors. The next two slides introduce embeddings and Chroma, and Part 3 goes deeper on both.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2><code>nomic-embed-text</code>: the embedding model</h2>
+      <ul>
+        <li>A second model, and it <strong>doesn't write answers</strong></li>
+        <li>Takes in text and returns a <strong>vector of 768 numbers</strong></li>
+        <li>Text with similar meaning gets similar vectors</li>
+        <li>Small: <strong>274 MB</strong> and about 137 million parameters</li>
+        <li>Its job: <strong>make our documents searchable by meaning</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>Ollama runs this one the same way it runs Llama: same pull, same API. The difference is the output. Llama returns words and this returns numbers.</p>
+        <p>Compare the size with Llama's 3 billion parameters. Embedding is a much smaller job than writing. Part 3 shows what these vectors look like.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Chroma: the vector database</h2>
+      <ul>
+        <li>A database built to store and search <strong>vectors</strong></li>
+        <li>Keeps each vector alongside its original text</li>
+        <li>Give it a question's vector and it returns the <strong>closest matches</strong></li>
+        <li>Not part of Ollama: a Python library, with no server to run</li>
+        <li>Its data is just a folder: <code>./chroma_db</code></li>
+        <li>Its job: <strong>find the passages most relevant to a question</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>This is the one piece that isn't a model. The embedding model creates the vectors, and Chroma stores them and finds the nearest ones when a question comes in.</p>
+        <p>Those passages then go to Llama along with the question. We'll build that in Parts 3 and 4.</p>
       </aside>
     </section>
 
@@ -793,6 +853,32 @@ python3 search.py "what do we do when the wick supplier is out of stock?"
       </aside>
     </section>
 
+    <section data-phase="rag">
+      <span class="lab-badge">Lab 3d</span><span class="timebox">~4 min</span>
+      <h2>Add a PDF</h2>
+      <pre><code class="language-bash" data-trim>
+sudo apt install -y poppler-utils     # provides pdftotext
+curl -fsSL -o rag-paper.pdf https://arxiv.org/pdf/2005.11401
+pdftotext rag-paper.pdf docs/rag-paper.md
+
+python3 ingest.py
+# Embedding 110 chunks from 5 files...
+
+python3 search.py "what does retrieval-augmented generation combine?"
+# --- rag-paper.md  (distance 0.289)
+      </code></pre>
+      <ul>
+        <li><code>ingest.py</code> only reads Markdown, so <strong>convert first</strong></li>
+        <li>PDF text is messy: one chunk hit <strong>4,009 chars</strong>, not 400</li>
+      </ul>
+      <aside class="notes">
+        <p>This is the 19-page paper that named RAG, so the system is now reading about itself. The output is plain text with a .md name, and that's all <code>ingest.py</code> needs.</p>
+        <p>Point out what got worse: author lists, page numbers and reference sections all became chunks, and our chunker never splits a long paragraph. It's a good reminder that chunking is where RAG bugs live.</p>
+        <p>Scanned PDFs have no text to extract, so they would need OCR first.</p>
+        <p>To undo it, re-ingesting isn't enough, because upsert doesn't delete old chunks: <code>rm docs/rag-paper.md &amp;&amp; rm -rf chroma_db &amp;&amp; python3 ingest.py</code></p>
+      </aside>
+    </section>
+
     <!-- ═══════════ PART 4 · ASSEMBLE ═══════════ -->
 
     <section data-phase="assemble">
@@ -866,6 +952,27 @@ python3 ask.py "what is our policy on remote work?"    # ← the trap
         <p>Let this one breathe — it's the thesis slide of Part 4. Same 2 GB model, same question, night and day.</p>
         <p><strong>DEMO if time:</strong> re-run the raw <code>ollama run</code> question from Part 3 live, side by side with ask.py.</p>
         <p>Retrieval put the truth in front of the model; the instructions told it to stay inside the evidence; the metadata let us cite where the answer came from.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
+      <span class="lab-badge">Bonus Lab</span><span class="timebox">~5 min</span>
+      <h2>Ask from your browser</h2>
+      <pre><code class="language-bash" data-trim>
+python3 web.py        # inside the VM, venv active
+# Open http://localhost:8000 in your browser. Press Ctrl-C to stop.
+      </code></pre>
+      <ul>
+        <li>The <strong>same RAG loop</strong> as <code>ask.py</code>, on a web page</li>
+        <li>Open <code>localhost:8000</code> on your laptop: Lima forwards the port for you</li>
+        <li>Expand <strong>Retrieved chunks</strong> to see the evidence behind each answer</li>
+        <li>No framework: Python's built-in HTTP server</li>
+      </ul>
+      <aside class="notes">
+        <p>Same models, same retrieval, same prompt as ask.py. The difference is that the chunks are visible, so you can see what the model was given.</p>
+        <p><strong>Good demo:</strong> ask the remote work trap question, then open the chunks. Something still comes back, and the distances are worse. That's Lab 3c's warning, now visible on the page.</p>
+        <p>We never added port 8000 to the YAML. Lima noticed the listening port and forwarded it, which is the automatic port forwarding from Part 1.</p>
+        <p>Answers vary from run to run. If one comes back wrong, open the chunks and talk through it.</p>
       </aside>
     </section>
 
