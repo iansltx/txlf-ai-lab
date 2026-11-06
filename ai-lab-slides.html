@@ -8,10 +8,6 @@
       and timing anchors live in the notes there. Allow the popup.
     • Arrow keys / space to advance. ESC for slide overview.
 
-  BEFORE THE TALK
-    • Search for [YOUR NAME], [CONFERENCE], and [REPO/BLOG URL]
-      and fill them in (slides 1 and 36–37).
-
   OFFLINE USE (recommended for conference wifi)
     This file loads reveal.js and fonts from CDNs. To vendor it:
       npm i reveal.js@5   (or download the dist/ folder from GitHub)
@@ -136,6 +132,14 @@
     .panel.bad h3 { color: var(--sol-red); }
     .panel.good h3 { color: var(--acc-assemble); }
 
+    /* "while you're waiting" slide: install steps + QR code */
+    .wait-cols { align-items: flex-start; }
+    .wait-cols > div:first-child { flex: 1.7; }
+    .qr-col { text-align: center; }
+    .reveal svg.qr { display: block; width: 300px; height: 300px; margin: 0.5em auto 0; border-radius: 6px; shape-rendering: crispEdges; }
+    .reveal .wait-note { font-size: 0.6em; color: var(--sol-muted); margin: 0.6em 0 0; }
+    .reveal .wait-link { font-size: 0.8em; margin: 0.8em 0 0; }
+
     /* the signature: persistent stack strip, bottom-left */
     .stack-strip {
       position: fixed; left: 30px; bottom: 20px; z-index: 30;
@@ -175,13 +179,42 @@
 <div class="reveal">
   <div class="slides">
 
+    <!-- ═══════════ WHILE YOU WAIT ═══════════ -->
+
+    <section>
+      <p class="eyebrow">While you're waiting</p>
+      <h2>Get <code>limactl</code> installed</h2>
+      <div class="cols wait-cols">
+        <div>
+          <pre><code class="language-bash" data-trim>
+# macOS or Linux, with Homebrew
+brew install lima
+limactl --version
+
+# Download the lab files
+git clone https://github.com/mralexjuarez/txlf-ai-lab
+          </code></pre>
+          <p class="wait-note">No Homebrew? See <code>lima-vm.io/docs/installation</code></p>
+        </div>
+        <div class="qr-col">
+          <svg class="qr" role="img" aria-label="QR code linking to the slides" viewBox="0 0 41 41"><path fill="#fdf6e3" d="M0 0h41v41h-41z"/><path stroke="#002b36" d="M4 4.5h7m3 0h1m2 0h1m2 0h5m1 0h2m2 0h7m-33 1h1m5 0h1m3 0h1m1 0h1m1 0h3m1 0h1m2 0h1m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h4m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h3m2 0h1m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h10m3 0h1m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m1 0h1m1 0h3m3 0h2m2 0h1m-25 1h1m1 0h5m3 0h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-31 1h3m5 0h2m1 0h2m3 0h1m1 0h2m3 0h1m2 0h2m1 0h2m1 0h1m-31 1h2m2 0h1m2 0h1m1 0h2m2 0h1m5 0h2m1 0h3m1 0h1m1 0h2m-30 1h1m4 0h1m1 0h1m6 0h1m1 0h2m1 0h2m2 0h1m2 0h3m-29 1h1m1 0h3m2 0h2m1 0h1m4 0h1m1 0h1m2 0h4m1 0h3m2 0h1m-30 1h2m2 0h1m3 0h1m1 0h1m2 0h5m2 0h1m2 0h2m1 0h1m1 0h2m-32 1h2m1 0h3m1 0h2m3 0h3m2 0h1m1 0h1m4 0h2m3 0h2m-30 1h1m4 0h1m2 0h1m2 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h6m-31 1h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1m2 0h1m1 0h4m1 0h2m3 0h1m-32 1h5m1 0h1m3 0h1m2 0h1m4 0h2m1 0h2m2 0h2m1 0h4m-31 1h1m2 0h4m1 0h3m2 0h1m4 0h3m2 0h4m1 0h2m-28 1h2m1 0h1m2 0h1m2 0h2m5 0h2m2 0h1m2 0h4m-31 1h4m1 0h2m2 0h1m2 0h6m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m6 0h4m1 0h1m1 0h1m2 0h3m1 0h2m1 0h1m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h4m1 0h1m2 0h2m4 0h3m1 0h3m4 0h1m-32 1h1m3 0h2m1 0h1m2 0h3m2 0h1m2 0h1m1 0h6m1 0h1m2 0h2m-32 1h1m1 0h5m1 0h5m1 0h1m2 0h1m1 0h1m2 0h1m1 0h5m2 0h2m-25 1h1m1 0h1m1 0h3m1 0h1m1 0h4m2 0h1m3 0h1m1 0h3m-33 1h7m3 0h1m3 0h5m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h4m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h2m3 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h1m1 0h4m1 0h1m3 0h1m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h4m2 0h1m2 0h1m2 0h4m1 0h2m-31 1h1m5 0h1m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m5 0h3m-31 1h7m1 0h1m2 0h1m1 0h2m1 0h2m2 0h1m1 0h4m1 0h1m3 0h1"/></svg>
+          <p class="wait-note">Scan for the slides</p>
+        </div>
+      </div>
+      <p class="wait-link">GitHub → <a href="https://github.com/mralexjuarez/txlf-ai-lab">github.com/mralexjuarez/txlf-ai-lab</a></p>
+      <aside class="notes">
+        <p><strong>Before the start.</strong> Leave this up while people arrive. Getting <code>limactl</code> installed is the first thing that needs to happen.</p>
+        <p>Point out the QR code for the slides and the GitHub link for the lab files. On Linux, Homebrew works too, and the install page has a binary option.</p>
+      </aside>
+    </section>
+
     <!-- ═══════════ INTRO ═══════════ -->
 
     <section>
-      <p class="eyebrow">Hands-on tutorial · 2 hours</p>
+      <p class="eyebrow">Hands-on tutorial · 2...ish hours</p>
       <h1>Your Own<br>Private Stack</h1>
-      <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong> — no cloud, no API key, no GPU.</p>
-      <p class="faint" style="font-size:0.6em; margin-top:2.2em;">[YOUR NAME] · [CONFERENCE] · [DATE]</p>
+      <p class="sub">Local LLMs &amp; RAG with <strong>Lima</strong> + <strong>Ollama</strong></p>
+      <p class="faint" style="font-size:0.6em; margin-top:2.2em;">Alex Juarez · Texas Linux Fest · November 6, 2026</p>
       <aside class="notes">
         <p><strong>⏱ 0:00.</strong> Welcome. Quick intro: who you are, what you make, why local-first computing appeals to you.</p>
         <p><strong>The promise:</strong> in two hours everyone leaves with a working local AI lab — a language model answering questions about their own documents — defined entirely by one folder and one YAML file. Delete it, rebuild it, take it home.</p>
@@ -191,22 +224,61 @@
     </section>
 
     <section>
+      <p class="eyebrow">Why we're here</p>
+      <h2>The goal</h2>
+      <ul>
+        <li>Explore how to work with local LLM models</li>
+        <li>Have fun and learn!</li>
+      </ul>
+      <aside class="notes">
+        <p>State the goal plainly before moving on to setup.</p>
+      </aside>
+    </section>
+
+    <section>
       <p class="eyebrow">Before we start</p>
       <h2>Pre-flight check</h2>
       <pre><code class="language-bash" data-trim>
-limactl list
-# NAME     STATUS     ...
-# ai-lab   Running        ← you want to see this
+limactl --version
+# limactl version 2.x.x   ← you want to see this
       </code></pre>
       <ul>
-        <li>No <code>ai-lab</code>? Pair up with a neighbor who has one.</li>
-        <li>Downloads were ~3 GB — conference wifi can't save you now 🙂</li>
+        <li>Not installed yet? Start it now: <code>brew install lima</code></li>
       </ul>
       <aside class="notes">
-        <p><strong>DEMO:</strong> run <code>limactl list</code> on screen. Ask for a show of hands: who sees ai-lab Running?</p>
-        <p><strong>Triage rule (say it once, kindly):</strong> we will not debug individual laptops live — that's how workshops die. Anyone without the pre-work pairs up now; the labs are fully doable as a pair, and everything works identically at home tonight using the README.</p>
-        <p>If a VM exists but is Stopped: <code>limactl start ai-lab</code> — takes ~30s, fine to do now.</p>
+        <p><strong>DEMO:</strong> run <code>limactl --version</code> on screen. Ask for a show of hands: who sees a version, and whose install is still downloading? Either is fine at this point.</p>
+        <p><strong>Triage rule (say it once, kindly):</strong> we will not debug individual laptops live — that's how workshops die. Anyone stuck on the install pairs up now; the labs are fully doable as a pair, and everything works identically at home tonight using the README.</p>
         <p>Budget 3 minutes here, no more.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">The route</p>
+      <h2>The next two hours</h2>
+      <table>
+        <tr><th>When</th><th>What</th><th>Lab</th></tr>
+        <tr><td>0:00</td><td>Why local, the four parts</td><td class="faint">—</td></tr>
+        <tr><td>0:10</td><td><strong>Lima</strong> — disposable Linux, as a file</td><td>Lab 1 · kick the tires</td></tr>
+        <tr><td>0:35</td><td><strong>Ollama</strong> — models as a service (yours)</td><td>Lab 2 · talk to a model</td></tr>
+        <tr><td>0:55</td><td><strong>RAG</strong> — give the model an open book</td><td>Labs 3a–3d · embed, ingest, search, PDF</td></tr>
+        <tr><td>1:15</td><td><strong>Assemble</strong> — ask your documents</td><td>Lab 4 · the payoff</td></tr>
+        <tr><td>1:50</td><td>Where it breaks · take it home · Q&amp;A</td><td class="faint">—</td></tr>
+      </table>
+      <aside class="notes">
+        <p>Set expectations: primers are short on purpose — the labs are the point. Roughly half the room's hands should be on keyboards half the time.</p>
+        <p>Note the shape: each tool gets (1) what it is, (2) a 90-second history so you know <em>why</em> it exists, (3) a lab. Then everything snaps together in part four.</p>
+      </aside>
+    </section>
+
+    <section>
+      <p class="eyebrow">Motivation</p>
+      <h2>Why This Talk</h2>
+      <ul>
+        <li>I give talks on things I want to learn more about</li>
+        <li>Preparing a talk pushes me to dig in and try it myself</li>
+      </ul>
+      <aside class="notes">
+        <p>Keep it short and personal. Say it in your own words, then move on to why running this locally is worth doing.</p>
       </aside>
     </section>
 
@@ -216,7 +288,6 @@ limactl list
       <ul>
         <li><strong>Privacy</strong> — your documents never leave your laptop</li>
         <li><strong>Cost</strong> — no meter running while you learn</li>
-        <li><strong>Offline</strong> — works on a plane, works in a demo</li>
         <li><strong>Understanding</strong> — every moving part is visible &amp; yours</li>
       </ul>
       <aside class="notes">
@@ -246,24 +317,6 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       </aside>
     </section>
 
-    <section>
-      <p class="eyebrow">The route</p>
-      <h2>The next two hours</h2>
-      <table>
-        <tr><th>When</th><th>What</th><th>Lab</th></tr>
-        <tr><td>0:00</td><td>Why local, the four parts</td><td class="faint">—</td></tr>
-        <tr><td>0:10</td><td><strong>Lima</strong> — disposable Linux, as a file</td><td>Lab 1 · kick the tires</td></tr>
-        <tr><td>0:35</td><td><strong>Ollama</strong> — models as a service (yours)</td><td>Lab 2 · talk to a model</td></tr>
-        <tr><td>0:55</td><td><strong>RAG</strong> — give the model an open book</td><td>Labs 3a–3c · embed, ingest, search</td></tr>
-        <tr><td>1:15</td><td><strong>Assemble</strong> — ask your documents</td><td>Lab 4 · the payoff</td></tr>
-        <tr><td>1:50</td><td>Where it breaks · take it home · Q&amp;A</td><td class="faint">—</td></tr>
-      </table>
-      <aside class="notes">
-        <p>Set expectations: primers are short on purpose — the labs are the point. Roughly half the room's hands should be on keyboards half the time.</p>
-        <p>Note the shape: each tool gets (1) what it is, (2) a 90-second history so you know <em>why</em> it exists, (3) a lab. Then everything snaps together in part four.</p>
-      </aside>
-    </section>
-
     <!-- ═══════════ PART 1 · LIMA ═══════════ -->
 
     <section data-phase="lima">
@@ -271,9 +324,8 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <h2>Lima — <span class="muted">Li</span>nux <span class="muted">Ma</span>chines</h2>
       <ul>
         <li>CLI tool that launches Linux VMs…</li>
-        <li>…with <strong>automatic file sharing</strong> and <strong>automatic port forwarding</strong></li>
-        <li>WSL2 energy — but for macOS <em>and</em> Linux</li>
-        <li>The whole machine is <strong>one YAML file</strong> you can put in git</li>
+        <li><strong>Automatic file sharing</strong> and <strong>automatic port forwarding</strong></li>
+        <li>The whole machine spec is <strong>one YAML file</strong> you can put in Git</li>
       </ul>
       <aside class="notes">
         <p><strong>⏱ 0:10.</strong> Definition first: Lima launches Linux virtual machines and handles the two things that are normally fiddly — sharing files in, forwarding ports out.</p>
@@ -287,7 +339,6 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <ul>
         <li><strong>2021</strong> — Akihiro Suda: run containerd/nerdctl on Macs</li>
         <li><strong>2022</strong> — joins CNCF (sandbox)</li>
-        <li>You may already run it: <strong>Colima · Rancher Desktop · Finch</strong></li>
         <li><strong>Nov 2024</strong> — v1.0</li>
         <li><strong>Oct/Nov 2025</strong> — CNCF <em>incubating</em>; <strong>v2.0 targets AI workflows</strong></li>
       </ul>
@@ -302,7 +353,7 @@ your laptop (macOS or Linux)          ~/ai-lab  (shared folder)
       <p class="eyebrow">Part 1 · Lima</p>
       <h2>Why a VM for AI work?</h2>
       <ul>
-        <li><strong>Isolation</strong> — the AI ecosystem loves <code>curl | sh</code>. Fine… in here.</li>
+        <li><strong>Isolation</strong> — the AI ecosystem loves <code>curl | sh</code> Use it in a VM</li>
         <li><strong>Repeatability</strong> — fast-moving deps, pinned OS, zero "works on my machine"</li>
         <li><strong>Disposability</strong> — rebuild costs one command, so break things freely</li>
       </ul>
@@ -325,7 +376,7 @@ limactl delete &lt;name&gt;       # gone. completely.
       </code></pre>
       <p class="sub">Bonus: <code>shell</code> drops you into your <em>current host directory</em> — if it's mounted.</p>
       <aside class="notes">
-        <p>That's genuinely the whole daily-driver surface. Templates can be built-in names (<code>template://default</code>), local YAML files (ours), or URLs.</p>
+        <p>That's genuinely the whole daily-driver surface. Templates can be built-in names (<code>template:default</code>), local YAML files (ours), or URLs.</p>
         <p>The bonus behavior is why every lab starts with <code>cd ~/ai-lab</code> first — the host/guest boundary nearly disappears.</p>
       </aside>
     </section>
@@ -334,20 +385,20 @@ limactl delete &lt;name&gt;       # gone. completely.
       <span class="lab-badge">Lab 1</span><span class="timebox">~10 min</span>
       <h2>Kick the tires</h2>
       <pre><code class="language-bash" data-trim>
-limactl start --name=scratch template://default   # "Proceed…"
+limactl start --name=scratch template:default   # "Proceed…"
 limactl shell scratch
   uname -a && whoami && ls ~
   touch ~/some-host-file.txt      # ← watch what happens
   exit
 limactl stop scratch && limactl delete scratch
-limactl list                      # scratch gone, ai-lab untouched
+limactl list                      # scratch is gone
       </code></pre>
       <aside class="notes">
         <p><strong>⏱ 0:18. DEMO first (2 min), then the room follows.</strong></p>
         <p>Beats to hit while they work:</p>
         <p>1. <code>uname -a</code>: a real Linux kernel. <code>whoami</code>: your host username mirrored in.</p>
         <p>2. <code>ls ~</code>: wait — those are your host files. Then <code>touch</code> fails: <strong>read-only file system.</strong> PAUSE HERE. This is Lima's most important default: your home is shared read-only. Writable access is opt-in, per-directory, in the template. Sandbox posture out of the box.</p>
-        <p>3. Delete without ceremony — this is the disposability muscle. Note the second VM boots fast: the Ubuntu image is cached.</p>
+        <p>3. Delete without ceremony — this is the disposability muscle. The Ubuntu image is cached now, so another VM from it boots fast.</p>
         <p><strong>If someone's start hangs:</strong> pair them, keep moving; troubleshooting section in the blog covers it.</p>
       </aside>
     </section>
@@ -357,13 +408,13 @@ limactl list                      # scratch gone, ai-lab untouched
       <h2>What just happened</h2>
       <ul>
         <li>Host home mounted <strong>read-only by default</strong> — safety is the default</li>
-        <li>Image was <strong>cached</strong> — next VM costs seconds, not 600 MB</li>
+        <li>Image is now <strong>cached</strong> — next VM from it costs seconds, not 600 MB</li>
         <li>Plain <strong>SSH</strong> under the hood — no daemon mystery</li>
-        <li><code>scratch</code> is gone; <code>ai-lab</code> never noticed</li>
+        <li><code>scratch</code> is gone in one command — VMs are disposable</li>
       </ul>
       <aside class="notes">
         <p>Recap fast — the room just experienced all of this, you're naming it.</p>
-        <p>Transition: "So how did our ai-lab VM get a <em>writable</em> folder, Ollama preinstalled, and a port opened? Somebody asked for those — in a file. Let's read it."</p>
+        <p>Transition: "So how will our ai-lab VM get a <em>writable</em> folder, Ollama preinstalled, and a port opened? We ask for those — in a file. Let's read it."</p>
       </aside>
     </section>
 
@@ -412,6 +463,118 @@ probes:
     <!-- ═══════════ PART 2 · OLLAMA ═══════════ -->
 
     <section data-phase="ollama">
+      <p class="eyebrow">Part 2</p>
+      <h1>Running llama using Ollama</h1>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Llama: the model</h2>
+      <ul>
+        <li>A family of large language models from <strong>Meta</strong></li>
+        <li>What you download: the <strong>weights</strong>, billions of learned numbers</li>
+        <li>Open weights under Meta's own license, not OSI open source</li>
+        <li>Ours: <code>llama3.2:3b</code>, with 3 billion parameters</li>
+        <li>Its job: <strong>read a prompt and generate the answer</strong></li>
+      </ul>
+      <aside class="notes">
+        <p><strong>⏱ 0:35.</strong> The names trip everyone up, so separate them first. Llama is the thing that thinks. On its own it's just a very large file of numbers, and it can't do anything until something runs it.</p>
+        <p>This room will care about the license: the weights are downloadable, but Meta's license isn't an OSI open source license.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Parameters and weights</h2>
+      <ul>
+        <li><strong>Parameters</strong> — the adjustable numbers inside a model
+          <ul>
+            <li>Each one sets how strongly one value influences the next</li>
+            <li>No single number means anything on its own</li>
+            <li>Together they capture patterns from training text, used to predict the next token</li>
+            <li>The count tells you its size: <code>llama3.2:3b</code> has about 3 billion</li>
+          </ul>
+        </li>
+        <li><strong>Weights</strong> — the values those numbers hold after training
+          <ul>
+            <li>This is what the model learned, and what you download</li>
+          </ul>
+        </li>
+        <li>Think of parameters as the knobs and weights as their settings</li>
+      </ul>
+      <aside class="notes">
+        <p>A useful way to say it: your prompt becomes numbers, those numbers get multiplied and combined with the parameters over and over, and what comes out is a score for every possible next token. You can't point at one parameter and say "this one knows about Texas". The knowledge is spread across all of them.</p>
+        <p>People often use the two words interchangeably, and that's fine for today. Strictly speaking, weights are the main kind of parameter.</p>
+        <p>Training is what sets the knobs. Running the model only reads them, so nothing here changes when you ask it a question.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Ollama: runs the model</h2>
+      <ul>
+        <li>An independent, MIT-licensed project, <strong>not from Meta</strong></li>
+        <li>Downloads, loads, and runs models on your machine</li>
+        <li>Works with <strong>many model families</strong>, not just Llama</li>
+        <li>Its job: <strong>make a model available as a local service</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>Similar name, different job. The analogy for this room: a model is like a container image, and Ollama is like Docker. One is the artifact, the other pulls it and runs it.</p>
+        <p>On the "What we're building" slide I called Ollama the brain. More precisely, Llama is the brain and Ollama is what keeps it running.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Who does what</h2>
+      <table>
+        <tr><th>Piece</th><th>What it is</th><th>Its job in our lab</th></tr>
+        <tr><td><strong>Lima</strong></td><td>Linux VM manager</td><td>Gives everything a sealed place to run</td></tr>
+        <tr><td><strong>Ollama</strong></td><td>Model runner</td><td>Pulls models, runs them, serves the API</td></tr>
+        <tr><td><strong>Llama 3.2</strong></td><td>Language model</td><td>Generates the answers</td></tr>
+        <tr><td><strong>nomic-embed-text</strong></td><td>Embedding model</td><td>Turns text into vectors</td></tr>
+        <tr><td><strong>Chroma</strong></td><td>Vector database</td><td>Stores and searches document vectors</td></tr>
+        <tr><td><strong>Python scripts</strong></td><td>Plain glue code</td><td>Connect the pieces</td></tr>
+      </table>
+      <aside class="notes">
+        <p>Keep this quick, since it's the map for everything after this. Ollama runs two models for us: one that writes and one that turns text into vectors. The next two slides introduce embeddings and Chroma, and Part 3 goes deeper on both.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2><code>nomic-embed-text</code>: the embedding model</h2>
+      <ul>
+        <li>A second model, and it <strong>doesn't write answers</strong></li>
+        <li>Takes in text and returns a <strong>vector of 768 numbers</strong></li>
+        <li>Text with similar meaning gets similar vectors</li>
+        <li>Small: <strong>274 MB</strong> and about 137 million parameters</li>
+        <li>Its job: <strong>make our documents searchable by meaning</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>Ollama runs this one the same way it runs Llama: same pull, same API. The difference is the output. Llama returns words and this returns numbers.</p>
+        <p>Compare the size with Llama's 3 billion parameters. Embedding is a much smaller job than writing. Part 3 shows what these vectors look like.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Chroma: the vector database</h2>
+      <ul>
+        <li>A database built to store and search <strong>vectors</strong></li>
+        <li>Keeps each vector alongside its original text</li>
+        <li>Give it a question's vector and it returns the <strong>closest matches</strong></li>
+        <li>Not part of Ollama: a Python library, with no server to run</li>
+        <li>Its data is just a folder: <code>./chroma_db</code></li>
+        <li>Its job: <strong>find the passages most relevant to a question</strong></li>
+      </ul>
+      <aside class="notes">
+        <p>This is the one piece that isn't a model. The embedding model creates the vectors, and Chroma stores them and finds the nearest ones when a question comes in.</p>
+        <p>Those passages then go to Llama along with the question. We'll build that in Parts 3 and 4.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
       <p class="eyebrow">Part 2 · Ollama</p>
       <h2>Ollama = runtime + registry + API</h2>
       <ul>
@@ -421,8 +584,35 @@ probes:
       </ul>
       <p class="sub">On Linux (our VM): one install script, one systemd service.</p>
       <aside class="notes">
-        <p><strong>⏱ 0:35.</strong> Three things in one small binary. In our VM it's already installed (the provision script did it) and already running as a service.</p>
+        <p>Three things in one small binary. We're about to build our VM, and the provision script will install Ollama and run it as a service.</p>
         <p>Foreshadow: the API is the part that matters for the rest of the day — the CLI we're about to use is just one client of it.</p>
+      </aside>
+    </section>
+
+    <section data-phase="ollama">
+      <p class="eyebrow">Part 2 · Ollama</p>
+      <h2>Build your lab</h2>
+      <pre><code class="language-bash" data-trim>
+# Put the lab files where the VM expects them
+cp -R txlf-ai-lab/ai-lab ~/ai-lab && cd ~/ai-lab
+
+# Create the VM (accept the default when prompted)
+limactl start ./ai-lab.yaml
+
+# Pull the models
+limactl shell ai-lab ollama pull llama3.2:3b
+limactl shell ai-lab ollama pull nomic-embed-text
+
+# Set up Python inside the VM, then run the smoke test
+limactl shell ai-lab
+python3 -m venv ~/venv && source ~/venv/bin/activate
+pip install requests chromadb
+python3 smoke_test.py
+      </code></pre>
+      <aside class="notes">
+        <p><strong>Start this now.</strong> The VM image and models come to about 3 GB, so it may not finish on conference wifi. It can keep running while we continue, but Lab 2 needs it.</p>
+        <p><strong>Three check marks from the smoke test means ready.</strong> Anyone who doesn't get there pairs up with a neighbor. Same triage rule as the pre-flight check: no live laptop debugging.</p>
+        <p>If <code>~/ai-lab</code> already exists, <code>cp -R</code> puts the files in a nested folder. Remove or rename the old one first.</p>
       </aside>
     </section>
 
@@ -663,6 +853,32 @@ python3 search.py "what do we do when the wick supplier is out of stock?"
       </aside>
     </section>
 
+    <section data-phase="rag">
+      <span class="lab-badge">Lab 3d</span><span class="timebox">~4 min</span>
+      <h2>Add a PDF</h2>
+      <pre><code class="language-bash" data-trim>
+sudo apt install -y poppler-utils     # provides pdftotext
+curl -fsSL -o rag-paper.pdf https://arxiv.org/pdf/2005.11401
+pdftotext rag-paper.pdf docs/rag-paper.md
+
+python3 ingest.py
+# Embedding 110 chunks from 5 files...
+
+python3 search.py "what does retrieval-augmented generation combine?"
+# --- rag-paper.md  (distance 0.289)
+      </code></pre>
+      <ul>
+        <li><code>ingest.py</code> only reads Markdown, so <strong>convert first</strong></li>
+        <li>PDF text is messy: one chunk hit <strong>4,009 chars</strong>, not 400</li>
+      </ul>
+      <aside class="notes">
+        <p>This is the 19-page paper that named RAG, so the system is now reading about itself. The output is plain text with a .md name, and that's all <code>ingest.py</code> needs.</p>
+        <p>Point out what got worse: author lists, page numbers and reference sections all became chunks, and our chunker never splits a long paragraph. It's a good reminder that chunking is where RAG bugs live.</p>
+        <p>Scanned PDFs have no text to extract, so they would need OCR first.</p>
+        <p>To undo it, re-ingesting isn't enough, because upsert doesn't delete old chunks: <code>rm docs/rag-paper.md &amp;&amp; rm -rf chroma_db &amp;&amp; python3 ingest.py</code></p>
+      </aside>
+    </section>
+
     <!-- ═══════════ PART 4 · ASSEMBLE ═══════════ -->
 
     <section data-phase="assemble">
@@ -740,6 +956,27 @@ python3 ask.py "what is our policy on remote work?"    # ← the trap
     </section>
 
     <section data-phase="assemble">
+      <span class="lab-badge">Bonus Lab</span><span class="timebox">~5 min</span>
+      <h2>Ask from your browser</h2>
+      <pre><code class="language-bash" data-trim>
+python3 web.py        # inside the VM, venv active
+# Open http://localhost:8000 in your browser. Press Ctrl-C to stop.
+      </code></pre>
+      <ul>
+        <li>The <strong>same RAG loop</strong> as <code>ask.py</code>, on a web page</li>
+        <li>Open <code>localhost:8000</code> on your laptop: Lima forwards the port for you</li>
+        <li>Expand <strong>Retrieved chunks</strong> to see the evidence behind each answer</li>
+        <li>No framework: Python's built-in HTTP server</li>
+      </ul>
+      <aside class="notes">
+        <p>Same models, same retrieval, same prompt as ask.py. The difference is that the chunks are visible, so you can see what the model was given.</p>
+        <p><strong>Good demo:</strong> ask the remote work trap question, then open the chunks. Something still comes back, and the distances are worse. That's Lab 3c's warning, now visible on the page.</p>
+        <p>We never added port 8000 to the YAML. Lima noticed the listening port and forwarded it, which is the automatic port forwarding from Part 1.</p>
+        <p>Answers vary from run to run. If one comes back wrong, open the chunks and talk through it.</p>
+      </aside>
+    </section>
+
+    <section data-phase="assemble">
       <p class="eyebrow">Part 4 · Assemble</p>
       <h2>Where it breaks <span class="muted">(an honest list)</span></h2>
       <ul>
@@ -774,7 +1011,7 @@ python3 ask.py "what is our policy on remote work?"    # ← the trap
 
     <section>
       <p class="eyebrow">The thesis, one last time</p>
-      <h2>Cattle, not pets</h2>
+      <h2>Resetting Your Environment</h2>
       <pre><code class="language-bash" data-trim>
 limactl delete ai-lab            # no ceremony
 limactl start ./ai-lab.yaml      # good as new in minutes
@@ -790,7 +1027,7 @@ limactl start ./ai-lab.yaml      # good as new in minutes
       <p class="eyebrow">Resources</p>
       <h2>Keep going</h2>
       <ul style="font-size:0.85em;">
-        <li>Slides, template, docs &amp; scripts → <strong>[REPO/BLOG URL]</strong></li>
+        <li>Slides, template, docs &amp; scripts → <a href="https://github.com/mralexjuarez/txlf-ai-lab">github.com/mralexjuarez/txlf-ai-lab</a></li>
         <li>Lima (CNCF incubating) → <code>lima-vm.io</code></li>
         <li>Ollama + model library → <code>ollama.com</code></li>
         <li>Chroma → <code>trychroma.com</code></li>
@@ -804,11 +1041,10 @@ limactl start ./ai-lab.yaml      # good as new in minutes
     <section>
       <p class="eyebrow">fin</p>
       <h2>Thanks — questions?</h2>
-      <p class="sub">[YOUR NAME] · [CONTACT / MASTODON / SITE]<br>[REPO/BLOG URL]</p>
+      <p class="sub">Alex Juarez · alex@alexjuarez.com<br><a href="https://github.com/mralexjuarez/txlf-ai-lab">github.com/mralexjuarez/txlf-ai-lab</a></p>
       <aside class="notes">
         <p><strong>⏱ 1:50 — Q&amp;A.</strong> Questions to expect, with short answers:</p>
         <p><em>"GPU?"</em> — everything today was CPU on purpose; Ollama uses a GPU automatically when present, and krunkit brings GPU into Lima VMs on Apple Silicon.</p>
-        <p><em>"Windows?"</em> — Lima targets macOS/Linux; on Windows, WSL2 plays the Lima role and Ollama runs natively — the Python is identical.</p>
         <p><em>"How big can the corpus get?"</em> — Chroma embedded handles far more than you'd guess; when ingest or query time annoys you, that's the signal to graduate to a served vector DB.</p>
         <p><em>"Is local actually private?"</em> — yes: kill the network and run Lab 4 again. Great party trick.</p>
       </aside>
